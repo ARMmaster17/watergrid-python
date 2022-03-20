@@ -1,6 +1,6 @@
 from abc import ABC
 
-from watergrid.context import DataContext
+from watergrid.context import DataContext, OutputMode
 from watergrid.steps import Step
 
 
@@ -31,9 +31,24 @@ class Pipeline(ABC):
         :return: None
         """
         self.verify_pipeline()
-        context = DataContext()
+        contexts = [DataContext()]
+        next_contexts = []
         for step in self._steps:
-            step.run_step(context)
+            for context in contexts:
+                step.run_step(context)
+                if context.get_output_mode() == OutputMode.SPLIT:
+                    split_key = step.get_step_provides()[0] # TODO: handle split matrix
+                    split_value = context.get(split_key)
+                    for value in split_value:
+                        new_context = DataContext()
+                        new_context.set_batch(dict(context.get_all()))
+                        new_context.set(split_key, value)
+                        next_contexts.append(new_context)
+                else:
+                    next_contexts.append(context)
+            contexts = next_contexts
+            next_contexts = []
+
 
     def get_step_count(self):
         """
