@@ -13,8 +13,8 @@ class Pipeline(ABC):
     """
 
     def __init__(self, pipeline_name: str):
-        self.pipeline_name = pipeline_name
-        self.steps = []
+        self._pipeline_name = pipeline_name
+        self._steps = []
 
     def add_step(self, step: Step):
         """
@@ -23,25 +23,31 @@ class Pipeline(ABC):
         :param step: Step to add.
         :type step: Step
         """
-        self.steps.append(step)
+        self._steps.append(step)
 
     def run(self):
         """
         Blocking operation that runs all steps in the pipeline once.
         :return: None
         """
-        self.__verify_pipeline()
+        self.verify_pipeline()
         context = DataContext()
-        for step in self.steps:
+        for step in self._steps:
             step.run_step(context)
 
     def get_step_count(self):
         """
         :return: Number of steps in the pipeline.
         """
-        return len(self.steps)
+        return len(self._steps)
 
-    def __verify_pipeline(self):
+    def get_pipeline_name(self) -> str:
+        """
+        :return: Name of the pipeline.
+        """
+        return self._pipeline_name
+
+    def verify_pipeline(self):
         """
         Verifies that the pipeline is valid and that all step dependencies are met.
         :return: None
@@ -57,12 +63,12 @@ class Pipeline(ABC):
         """
         # Get a list of all provided data keys.
         provided_keys = []
-        for step in self.steps:
+        for step in self._steps:
             for step_provider in step.get_step_provides():
                 if step_provider not in provided_keys:
                     provided_keys.append(step_provider)
         # Check that all dependencies are met
-        for step in self.steps:
+        for step in self._steps:
             for step_dependency in step.get_step_requirements():
                 if step_dependency not in provided_keys:
                     raise Exception(f"Step {step.get_step_name()} requires {step_dependency} to be provided.")
@@ -76,18 +82,18 @@ class Pipeline(ABC):
         provided_keys = []
         step_index = 0
         index_hop_count = 0
-        while step_index < len(self.steps):
+        while step_index < len(self._steps):
             index_hop_count += 1
-            if index_hop_count > len(self.steps) ** 2:
+            if index_hop_count > len(self._steps) ** 2:
                 raise Exception("Unable to resolve step dependencies.")
             index_moved = False
-            for step_dependency in self.steps[step_index].get_step_requirements():
+            for step_dependency in self._steps[step_index].get_step_requirements():
                 if step_dependency not in provided_keys:
-                    self.steps.append(self.steps.pop(step_index))
+                    self._steps.append(self._steps.pop(step_index))
                     index_moved = True
                     break
             if not index_moved:
-                for provided_key in self.steps[step_index].get_step_provides():
+                for provided_key in self._steps[step_index].get_step_provides():
                     provided_keys.append(provided_key)
                 step_index += 1
 
