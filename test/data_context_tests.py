@@ -13,6 +13,18 @@ class MockSplitStep(Step):
         context.set('test_data', self.__test_data)
         context.set_output_mode(OutputMode.SPLIT)
 
+class MockFilterStep(Step):
+    def __init__(self):
+        super().__init__(self.__class__.__name__, provides=['filtered_test_data'], requires=['test_data'])
+
+    def run(self, context: DataContext):
+        test_data = context.get('test_data')
+        context.set_output_mode(OutputMode.FILTER)
+        if test_data == 2:
+            context.set('filtered_test_data', test_data)
+        else:
+            context.set('filtered_test_data', None)
+
 class MockStep(Step):
     def __init__(self):
         super().__init__(self.__class__.__name__)
@@ -25,12 +37,13 @@ class MockStep(Step):
         return self.mock_flag
 
 class MockVerifyStep(Step):
-    def __init__(self):
+    def __init__(self, test_key: str):
         super().__init__(self.__class__.__name__)
         self.mock_flag = 0
+        self.__test_key = test_key
 
     def run(self, context: DataContext):
-        self.mock_flag += context.get('test_data')
+        self.mock_flag += context.get(self.__test_key)
 
     def get_flag(self):
         return self.mock_flag
@@ -57,12 +70,23 @@ class DataContextTestCase(unittest.TestCase):
 
     def test_split_context_splits_data(self):
         step1 = MockSplitStep(test_data=[1, 3, 5, 7, 9])
-        step2 = MockVerifyStep()
+        step2 = MockVerifyStep('test_data')
         pipeline = Pipeline("test_pipeline")
         pipeline.add_step(step1)
         pipeline.add_step(step2)
         pipeline.run()
         self.assertEqual(25, step2.get_flag())
+
+    def test_filter_context_removes_values(self):
+        step1 = MockSplitStep(test_data=[1, 2])
+        step2 = MockFilterStep()
+        step3 = MockVerifyStep('filtered_test_data')
+        pipeline = Pipeline("test_pipeline")
+        pipeline.add_step(step1)
+        pipeline.add_step(step2)
+        pipeline.add_step(step3)
+        pipeline.run()
+        self.assertEqual(2, step3.get_flag())
 
 
 if __name__ == '__main__':

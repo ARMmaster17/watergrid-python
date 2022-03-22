@@ -44,8 +44,12 @@ class Pipeline(ABC):
                         new_context.set_batch(dict(context.get_all()))
                         new_context.set(split_key, value)
                         next_contexts.append(new_context)
+                elif context.get_output_mode() == OutputMode.FILTER and (context.get(step.get_step_provides()[0]) is None):
+                    continue
                 else:
-                    next_contexts.append(context)
+                    new_context = DataContext()
+                    new_context.set_batch(dict(context.get_all()))
+                    next_contexts.append(new_context)
             contexts = next_contexts
             next_contexts = []
 
