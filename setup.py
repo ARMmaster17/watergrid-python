@@ -13,7 +13,7 @@ setup(
     description='Distributed streaming data pipeline',
     long_description=long_description,
     url='https://github.com/ARMmaster17/watergrid-python',
-    author='ARMmaster17',
+    author='Joshua Zenn',
     license='MIT',
     classifiers=[
         "License :: OSI Approved :: MIT License",
@@ -22,7 +22,14 @@ setup(
         "Programming Language :: Python :: 3.9",
         "Operating System :: OS Independent"
     ],
+    project_urls={
+        'Code': 'https://github.com/ARMmaster17/watergrid-python',
+        'Issue tracker': 'https://github.com/ARMmaster17/watergrid-python/issues',
+    },
     packages=["watergrid"],
+    python_requires='>=3.7',
     include_package_data=True,
-    install_requires=[]
+    install_requires=[
+        'redis==4.1.3',
+    ]
 )
