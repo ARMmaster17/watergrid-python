@@ -68,6 +68,7 @@ def main():
 if __name__ == '__main__':
     main()
 ```
+# Step Operations
 
 ## Creating Custom Steps
 Every step of your pipeline should be its own class and inherit from the `Step` class. Here is an example:
@@ -98,8 +99,6 @@ from watergrid.context import OutputMode
 
 class AddValuesStep(Step):
     def __init__(self):
-        # Use requires to denote which steps need to run before this one, and
-        # use provides to denote which steps can run after this one.
         super().__init__(self.__class__.__name__, provides=['added_value'])
 
     def run(self, context: DataContext):
@@ -108,4 +107,26 @@ class AddValuesStep(Step):
         # The pipeline will automatically split the first key listed in provides.
         # For example, in the next step context.get('added_value') will return 0.
         # Then the next step will run again with the values 1, 2, 3, etc...
+```
+
+## Filter Steps
+Filter steps have the option to pass back the value of `None`. If this is the case, this instance of the context will be deleted and not passed to the next step. Works great with split steps.
+
+Note that the pipeline will only filter the first field listed in the provides list.
+
+```python
+from watergrid.steps import Step
+from watergrid.context import DataContext
+from watergrid.context import OutputMode
+class FilterStep(Step):
+    def __init__(self):
+        super().__init__(self.__class__.__name__, requires=['value'], provides=['filtered_value'])
+
+    def run(self, context: DataContext):
+        value = context.get('value')
+        context.set_output_mode(OutputMode.FILTER)
+        if value == 1:
+            context.set('filtered_value', value)
+        else:
+            context.set('filtered_value', None)
 ```
