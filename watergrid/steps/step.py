@@ -52,6 +52,13 @@ class Step(ABC):
         """
         return self.__dep_provides
 
+    def get_step_name(self) -> str:
+        """
+        Returns the name of the step.
+        :return: Name of the step.
+        """
+        return self._step_name
+
     @abstractmethod
     def run(self, context: DataContext):
         pass

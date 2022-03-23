@@ -15,6 +15,7 @@ class Pipeline(ABC):
     def __init__(self, pipeline_name: str):
         self._pipeline_name = pipeline_name
         self._steps = []
+        self._metrics_exporters = []
 
     def add_step(self, step: Step):
         """
@@ -31,11 +32,17 @@ class Pipeline(ABC):
         :return: None
         """
         self.verify_pipeline()
+        for metrics_exporter in self._metrics_exporters:
+            metrics_exporter.start_pipeline(self._pipeline_name)
         contexts = [DataContext()]
         next_contexts = []
         for step in self._steps:
             for context in contexts:
+                for metrics_exporter in self._metrics_exporters:
+                    metrics_exporter.start_step(step.get_step_name())
                 step.run_step(context)
+                for metrics_exporter in self._metrics_exporters:
+                    metrics_exporter.end_step(step.get_step_name())
                 if context.get_output_mode() == OutputMode.SPLIT:
                     split_key = step.get_step_provides()[0] # TODO: handle split matrix
                     split_value = context.get(split_key)
@@ -52,6 +59,8 @@ class Pipeline(ABC):
                     next_contexts.append(new_context)
             contexts = next_contexts
             next_contexts = []
+        for metrics_exporter in self._metrics_exporters:
+            metrics_exporter.end_pipeline(self._pipeline_name)
 
 
     def get_step_count(self):
@@ -115,4 +124,7 @@ class Pipeline(ABC):
                 for provided_key in self._steps[step_index].get_step_provides():
                     provided_keys.append(provided_key)
                 step_index += 1
+
+    def add_metrics_exporter(self, exporter):
+        self._metrics_exporters.append(exporter)
 
