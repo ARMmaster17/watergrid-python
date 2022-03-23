@@ -10,7 +10,7 @@ class MetricsExporter(ABC):
         pass
 
     @abstractmethod
-    def end_pipeline(self, pipeline_name):
+    def end_pipeline(self):
         pass
 
     @abstractmethod
@@ -18,5 +18,9 @@ class MetricsExporter(ABC):
         pass
 
     @abstractmethod
-    def end_step(self, step_name):
+    def end_step(self):
+        pass
+
+    @abstractmethod
+    def capture_exception(self, exception: Exception):
         pass

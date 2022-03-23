@@ -36,31 +36,38 @@ class Pipeline(ABC):
             metrics_exporter.start_pipeline(self._pipeline_name)
         contexts = [DataContext()]
         next_contexts = []
-        for step in self._steps:
-            for context in contexts:
-                for metrics_exporter in self._metrics_exporters:
-                    metrics_exporter.start_step(step.get_step_name())
-                step.run_step(context)
-                for metrics_exporter in self._metrics_exporters:
-                    metrics_exporter.end_step(step.get_step_name())
-                if context.get_output_mode() == OutputMode.SPLIT:
-                    split_key = step.get_step_provides()[0] # TODO: handle split matrix
-                    split_value = context.get(split_key)
-                    for value in split_value:
+        try:
+            for step in self._steps:
+                for context in contexts:
+                    for metrics_exporter in self._metrics_exporters:
+                        metrics_exporter.start_step(step.get_step_name())
+                    step.run_step(context)
+                    for metrics_exporter in self._metrics_exporters:
+                        metrics_exporter.end_step()
+                    if context.get_output_mode() == OutputMode.SPLIT:
+                        split_key = step.get_step_provides()[0] # TODO: handle split matrix
+                        split_value = context.get(split_key)
+                        for value in split_value:
+                            new_context = DataContext()
+                            new_context.set_batch(dict(context.get_all()))
+                            new_context.set(split_key, value)
+                            next_contexts.append(new_context)
+                    elif context.get_output_mode() == OutputMode.FILTER and (context.get(step.get_step_provides()[0]) is None):
+                        continue
+                    else:
                         new_context = DataContext()
                         new_context.set_batch(dict(context.get_all()))
-                        new_context.set(split_key, value)
                         next_contexts.append(new_context)
-                elif context.get_output_mode() == OutputMode.FILTER and (context.get(step.get_step_provides()[0]) is None):
-                    continue
-                else:
-                    new_context = DataContext()
-                    new_context.set_batch(dict(context.get_all()))
-                    next_contexts.append(new_context)
-            contexts = next_contexts
-            next_contexts = []
-        for metrics_exporter in self._metrics_exporters:
-            metrics_exporter.end_pipeline(self._pipeline_name)
+                contexts = next_contexts
+                next_contexts = []
+        except Exception as e:
+            for metrics_exporter in self._metrics_exporters:
+                metrics_exporter.capture_exception(e)
+            for metrics_exporter in self._metrics_exporters:
+                metrics_exporter.end_step()
+        finally:
+            for metrics_exporter in self._metrics_exporters:
+                metrics_exporter.end_pipeline()
 
 
     def get_step_count(self):
