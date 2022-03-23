@@ -12,25 +12,64 @@ class DataContext():
         self.output_mode = OutputMode.DIRECT
 
     def set(self, key: str, value: object) -> None:
+        """
+        Sets a key-value pair in the pipeline context to be passed to another step.
+        :param key: Key to set.
+        :param value: Value to assign to the given key.
+        :return: None
+        """
         self.data[key] = value
 
-    def get(self, key: str) -> object:
+    def get(self, key: str):
+        """
+        Gets the value of a given key.
+        :param key: Key of the value to get.
+        :return: Value of the given key (if found in the KV store).
+        """
         return self.data[key]
 
     def get_all(self) -> dict:
+        """
+        Gets all the data stored in the pipeline context.
+        :return: Dictionary of all KV pairs in the pipeline context.
+        """
         return self.data
 
     def set_batch(self, batch: dict) -> None:
+        """
+        Overwrites all data in the pipeline context with the given dict.
+        :param batch: Data to overwrite the pipeline context with.
+        :return: None
+        """
         self.data = batch
 
     def has(self, key: str) -> bool:
+        """
+        Checks if a given key is in the pipeline context.
+        :param key: Key to check for.
+        :return: Boolean denoting if the key was found.
+        """
         return key in self.data
 
     def set_output_mode(self, mode: OutputMode) -> None:
+        """
+        Sets the output mode of the pipeline context. Determines if the context will be deleted, forwarded,
+        or split before the next step.
+        :param mode: Mode to set the pipeline context to.
+        :return: None
+        """
         self.output_mode = mode
 
     def reset_context(self):
+        """
+        Resets the pipeline context mode to the default.
+        :return:
+        """
         self.output_mode = OutputMode.DIRECT
 
     def get_output_mode(self) -> OutputMode:
+        """
+        Gets the output mode of the pipeline context.
+        :return: Currently configured output mode of the pipeline context.
+        """
         return self.output_mode
