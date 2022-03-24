@@ -1,4 +1,7 @@
+import time
 from abc import ABC
+
+import pycron
 
 from watergrid.context import DataContext, OutputMode
 from watergrid.steps import Step
@@ -68,6 +71,29 @@ class Pipeline(ABC):
         finally:
             for metrics_exporter in self._metrics_exporters:
                 metrics_exporter.end_pipeline()
+
+    def run_loop(self):
+        """
+        Runs the pipeline in a loop. Subsequent executions will run immediately after the previous execution.
+        """
+        while True:
+            self.run()
+
+    def run_scheduled(self, cron_expression: str):
+        """
+        Runs the pipeline once every time the cron expression matches.
+
+        :param cron_expression: Cron expression to match.
+        :type cron_expression: str
+        """
+        while True:
+            if pycron.is_now(cron_expression):
+                start_time = time.perf_counter()
+                self.run()
+                elapsed_time = time.perf_counter() - start_time
+                time.sleep(60 - elapsed_time)  # Sleep for the remaining time in the minute so that the pipeline does not run multiple times per cron trigger.
+            else:
+                time.sleep(1)
 
 
     def get_step_count(self):
