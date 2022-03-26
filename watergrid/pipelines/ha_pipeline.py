@@ -1,7 +1,7 @@
 import logging
 
 from watergrid.context import DataContext
-from watergrid.locks import PipelineLock
+from watergrid.locks.PipelineLock import PipelineLock
 from watergrid.pipelines.pipeline import Pipeline
 
 

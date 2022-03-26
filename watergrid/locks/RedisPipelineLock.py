@@ -1,7 +1,7 @@
 from redis import Redis
 from redis.lock import Lock
 
-from watergrid.locks import PipelineLock
+from watergrid.locks.PipelineLock import PipelineLock
 
 
 class RedisPipelineLock(PipelineLock):
