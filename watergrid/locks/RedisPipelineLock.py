@@ -20,7 +20,7 @@ class RedisPipelineLock(PipelineLock):
             host=self._redis_host,
             port=self._redis_port,
             db=self._redis_db,
-            password=self._redis_password
+            password=self._redis_password,
         )
         self.__lock = Lock(self.__redis, self._lock_key, timeout=self.lock_timeout)
 
