@@ -45,7 +45,7 @@ jobs:
         env:
           CC_TEST_REPORTER_ID: 29a27fc4eb61dd439f58c906409779d64a5a760a37b8b118a643959621727e3d
         with:
-          coverageCommand: coverage run -m unittest discover
+          coverageCommand: coverage run -m unittest discover -s test -p '*.py'
           coverageLocations: ${{github.workspace}}/.coverage:coverage.py
           workingDirectory: ${{github.workspace}}
   run-linters:
