@@ -1,7 +1,7 @@
 from watergrid.context import OutputMode
 
 
-class DataContext():
+class DataContext:
     """
     Stores data from previous steps, and allows you to pass KV pairs to
     subsequent steps.

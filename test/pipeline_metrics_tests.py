@@ -46,6 +46,7 @@ class MockMetricsExporter(MetricsExporter):
         self.__exception_raised = False
         super().__init__()
 
+
 class MockStep(Step):
     def __init__(self, throw_exception=False):
         super().__init__(self.__class__.__name__)
@@ -63,7 +64,7 @@ class MockStep(Step):
 
 class PipelineMetricsTestCase(unittest.TestCase):
     def test_pipeline_accepts_metrics(self):
-        pipeline = Pipeline('test_pipeline')
+        pipeline = Pipeline("test_pipeline")
         exporter = MockMetricsExporter(1)
         pipeline.add_metrics_exporter(exporter)
         step1 = MockStep()
@@ -77,7 +78,7 @@ class PipelineMetricsTestCase(unittest.TestCase):
         self.assertFalse(exporter.get_excpetion_raised())
 
     def test_pipeline_measures_two_steps(self):
-        pipeline = Pipeline('test_pipeline')
+        pipeline = Pipeline("test_pipeline")
         exporter = MockMetricsExporter(2)
         pipeline.add_metrics_exporter(exporter)
         step1 = MockStep()
@@ -94,7 +95,7 @@ class PipelineMetricsTestCase(unittest.TestCase):
         self.assertFalse(exporter.get_excpetion_raised())
 
     def test_metrics_captures_exception(self):
-        pipeline = Pipeline('test_pipeline')
+        pipeline = Pipeline("test_pipeline")
         exporter = MockMetricsExporter(1)
         pipeline.add_metrics_exporter(exporter)
         step1 = MockStep(True)
@@ -108,6 +109,5 @@ class PipelineMetricsTestCase(unittest.TestCase):
         self.assertTrue(exporter.get_excpetion_raised())
 
 
-
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

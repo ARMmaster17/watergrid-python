@@ -40,5 +40,5 @@ class PipelineTestCase(unittest.TestCase):
         self.assertTrue(step2.get_flag())
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

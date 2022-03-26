@@ -10,7 +10,7 @@ class PipelineLock(ABC):
 
     def lock(self) -> bool:
         if self.has_lock():
-            raise RuntimeError('Lock already acquired')
+            raise RuntimeError("Lock already acquired")
         if self.acquire():
             self.__start_time = time.perf_counter()
             self.__has_lock = True
@@ -19,16 +19,16 @@ class PipelineLock(ABC):
 
     def ping(self):
         if not self.has_lock():
-            raise RuntimeError('Lock not acquired')
+            raise RuntimeError("Lock not acquired")
         if not self.has_lock():
-            raise RuntimeError('Lock was lost')
+            raise RuntimeError("Lock was lost")
         lock_time = time.perf_counter() - self.__start_time
         if lock_time > (self.lock_timeout * 0.9):
             self.extend_lease()
 
     def unlock(self):
         if not self.has_lock():
-            raise RuntimeError('Lock not acquired')
+            raise RuntimeError("Lock not acquired")
         self.release()
         self.__has_lock = False
 
@@ -47,4 +47,3 @@ class PipelineLock(ABC):
     @abstractmethod
     def release(self):
         pass
-
