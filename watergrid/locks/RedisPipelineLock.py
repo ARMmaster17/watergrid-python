@@ -5,7 +5,7 @@ from watergrid.locks.PipelineLock import PipelineLock
 
 
 class RedisPipelineLock(PipelineLock):
-    def __init__(self, lock_timeout: int = None):
+    def __init__(self, lock_timeout: int = 60):
         super().__init__(lock_timeout=lock_timeout)
         self._lock_key = "pipeline-lock"
         self._redis_host = "localhost"
@@ -22,18 +22,19 @@ class RedisPipelineLock(PipelineLock):
             db=self._redis_db,
             password=self._redis_password,
         )
+        self.__redis.ping()
         self.__lock = Lock(self.__redis, self._lock_key, timeout=self.lock_timeout)
 
-    def set_redis_host(self, host: str):
+    def set_host(self, host: str):
         self._redis_host = host
 
-    def set_redis_port(self, port: int):
+    def set_port(self, port: int):
         self._redis_port = port
 
-    def set_redis_db(self, db: int):
+    def set_db(self, db: int):
         self._redis_db = db
 
-    def set_redis_password(self, password: str):
+    def set_password(self, password: str):
         self._redis_password = password
 
     def acquire(self) -> bool:

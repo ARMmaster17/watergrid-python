@@ -1,0 +1,12 @@
+version: '3.3'
+services:
+  redis:
+    image: redis:6.2.6-alpine
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+    ports:
+      - 6379:6379
