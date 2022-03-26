@@ -4,6 +4,7 @@ from abc import ABC
 import pycron
 
 from watergrid.context import DataContext, OutputMode
+from watergrid.metrics.MetricsStore import MetricsStore
 from watergrid.steps import Step
 
 
@@ -18,7 +19,7 @@ class Pipeline(ABC):
     def __init__(self, pipeline_name: str):
         self._pipeline_name = pipeline_name
         self._steps = []
-        self._metrics_exporters = []
+        self._metrics_store = MetricsStore()
 
     def add_step(self, step: Step):
         """
@@ -35,46 +36,14 @@ class Pipeline(ABC):
         :return: None
         """
         self.verify_pipeline()
-        for metrics_exporter in self._metrics_exporters:
-            metrics_exporter.start_pipeline(self._pipeline_name)
-        contexts = [DataContext()]
-        next_contexts = []
+        self._metrics_store.start_pipeline_monitoring(self._pipeline_name)
         try:
-            for step in self._steps:
-                for context in contexts:
-                    for metrics_exporter in self._metrics_exporters:
-                        metrics_exporter.start_step(step.get_step_name())
-                    step.run_step(context)
-                    for metrics_exporter in self._metrics_exporters:
-                        metrics_exporter.end_step()
-                    if context.get_output_mode() == OutputMode.SPLIT:
-                        split_key = step.get_step_provides()[
-                            0
-                        ]  # TODO: handle split matrix
-                        split_value = context.get(split_key)
-                        for value in split_value:
-                            new_context = DataContext()
-                            new_context.set_batch(dict(context.get_all()))
-                            new_context.set(split_key, value)
-                            next_contexts.append(new_context)
-                    elif context.get_output_mode() == OutputMode.FILTER and (
-                        context.get(step.get_step_provides()[0]) is None
-                    ):
-                        continue
-                    else:
-                        new_context = DataContext()
-                        new_context.set_batch(dict(context.get_all()))
-                        next_contexts.append(new_context)
-                contexts = next_contexts
-                next_contexts = []
+            self.__run_pipeline_steps()
         except Exception as e:
-            for metrics_exporter in self._metrics_exporters:
-                metrics_exporter.capture_exception(e)
-            for metrics_exporter in self._metrics_exporters:
-                metrics_exporter.end_step()
+            self._metrics_store.report_exception(e)
+            self._metrics_store.stop_step_monitoring()
         finally:
-            for metrics_exporter in self._metrics_exporters:
-                metrics_exporter.end_pipeline()
+            self._metrics_store.stop_pipeline_monitoring()
 
     def run_loop(self):
         """
@@ -166,4 +135,109 @@ class Pipeline(ABC):
                 step_index += 1
 
     def add_metrics_exporter(self, exporter):
-        self._metrics_exporters.append(exporter)
+        """
+        Adds a metrics exporter to the pipeline metric store.
+        :param exporter: Exporter to add.
+        :return: None
+        """
+        self._metrics_store.add_metrics_exporter(exporter)
+
+    def __run_pipeline_steps(self):
+        """
+        Performs setup and runs all steps in the pipeline.
+        :return:
+        """
+        contexts = [DataContext()]
+        for step in self._steps:
+            contexts = self.__run_step_for_each_context(step, contexts)
+
+    def __run_step_for_each_context(self, step: Step, context_list: list) -> list:
+        """
+        Runs the given step once for each context in the context list and performs post-processing.
+        :param step: Step to run.
+        :param context_list: List of contexts to provide to the step runtime.
+        :return: List of contexts to provide to the next step.
+        """
+        next_contexts = []
+        for context in context_list:
+            self.__run_step_with_performance_monitoring(step, context)
+            self.__process_step_output(context, step.get_step_provides(), next_contexts)
+        return next_contexts
+
+    def __process_step_output(
+        self, context: DataContext, step_provides: list, next_contexts: list
+    ):
+        """
+        Performs post-processing on the output of a step.
+        :param context: Output from the current step.
+        :param step_provides: List of data keys that the step provides.
+        :param next_contexts: List of contexts that will be passed to the next step.
+        :return: None
+        """
+        if context.get_output_mode() == OutputMode.SPLIT:
+            self.__split_context(step_provides, context, next_contexts)
+        elif context.get_output_mode() == OutputMode.FILTER:
+            self.__filter_context(step_provides, context, next_contexts)
+        else:
+            self.__forward_context(context, next_contexts)
+
+    def __run_step_with_performance_monitoring(self, step: Step, context: DataContext):
+        """
+        Runs a single step in the pipeline and forwards performance data to any installed monitoring plugins.
+        :param step: Step to run.
+        :param context: Context to provide to the step runtime.
+        :return: None
+        """
+        self._metrics_store.start_step_monitoring(step.get_step_name())
+        step.run_step(context)
+        self._metrics_store.stop_step_monitoring()
+
+    def __split_context(
+        self, step_provides: list, context: DataContext, next_contexts: list
+    ):
+        """
+        Splits the context into multiple contexts based on the output of the current step.
+        :param step_provides: The list of data keys that the current step provides.
+        :param context: The context instance from the current step.
+        :param next_contexts: The list of contexts that will be passed to the next step.
+        :return: None
+        """
+        split_key = step_provides[0]
+        split_value = context.get(split_key)
+        for value in split_value:
+            new_context = self.__deep_copy_context(context)
+            new_context.set(split_key, value)
+            next_contexts.append(new_context)
+
+    def __filter_context(
+        self, step_provides: list, context: DataContext, next_contexts: list
+    ):
+        """
+        Forwards the context to the next step if the given filter key is present.
+        :param step_provides: The list of context keys that the step provides.
+        :param context: The context instance from the current step.
+        :param next_contexts: The list of contexts that will be passed to the next step.
+        :return: None
+        """
+        if context.get(step_provides[0]) is not None:
+            next_contexts.append(self.__deep_copy_context(context))
+
+    def __forward_context(self, context: DataContext, next_contexts: list):
+        """
+        Forwards the context to the next step with no post-processing.
+        :param context: Context to forward.
+        :param next_contexts: List of contexts that will be used by the next step.
+        :return: None
+        """
+        next_contexts.append(self.__deep_copy_context(context))
+
+    @staticmethod
+    def __deep_copy_context(context: DataContext):
+        """
+        Creates a deep copy of a DataContext object.
+        :param context: Context instance to be copied.
+        :return: New copy of the given context instance.
+        """
+        new_context = DataContext()
+        new_context.set_batch(dict(context.get_all()))
+        return new_context
