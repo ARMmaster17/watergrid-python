@@ -17,7 +17,7 @@ class PipelineTestCase(unittest.TestCase):
 
     def test_can_set_host(self):
         redis_lock = RedisPipelineLock()
-        redis_lock.set_host('localhost')
+        redis_lock.set_host("localhost")
 
     def test_can_set_port(self):
         redis_lock = RedisPipelineLock()
@@ -29,7 +29,7 @@ class PipelineTestCase(unittest.TestCase):
 
     def test_can_set_password(self):
         redis_lock = RedisPipelineLock()
-        redis_lock.set_password('password')
+        redis_lock.set_password("password")
 
     def test_can_renew_lock(self):
         redis_lock = RedisPipelineLock()
