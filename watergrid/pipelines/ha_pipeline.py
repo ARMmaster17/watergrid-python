@@ -1,7 +1,7 @@
 import logging
 
 from watergrid.context import DataContext
-from watergrid.locks import PipelineLock
+from watergrid.locks.PipelineLock import PipelineLock
 from watergrid.pipelines.pipeline import Pipeline
 
 
@@ -31,4 +31,8 @@ class HAPipeline(Pipeline):
                 step.run_step(context)
             self.__pipeline_lock.unlock()
         else:
-            logging.debug("Pipeline {} is already running on another instance".format(self.get_pipeline_name()))
+            logging.debug(
+                "Pipeline {} is already running on another instance".format(
+                    self.get_pipeline_name()
+                )
+            )

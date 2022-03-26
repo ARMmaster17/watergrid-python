@@ -53,5 +53,5 @@ class HAPipelineTestCase(unittest.TestCase):
         self.assertFalse(mock_lock.has_lock())
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

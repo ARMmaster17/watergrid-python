@@ -48,14 +48,18 @@ class Pipeline(ABC):
                     for metrics_exporter in self._metrics_exporters:
                         metrics_exporter.end_step()
                     if context.get_output_mode() == OutputMode.SPLIT:
-                        split_key = step.get_step_provides()[0] # TODO: handle split matrix
+                        split_key = step.get_step_provides()[
+                            0
+                        ]  # TODO: handle split matrix
                         split_value = context.get(split_key)
                         for value in split_value:
                             new_context = DataContext()
                             new_context.set_batch(dict(context.get_all()))
                             new_context.set(split_key, value)
                             next_contexts.append(new_context)
-                    elif context.get_output_mode() == OutputMode.FILTER and (context.get(step.get_step_provides()[0]) is None):
+                    elif context.get_output_mode() == OutputMode.FILTER and (
+                        context.get(step.get_step_provides()[0]) is None
+                    ):
                         continue
                     else:
                         new_context = DataContext()
@@ -91,10 +95,11 @@ class Pipeline(ABC):
                 start_time = time.perf_counter()
                 self.run()
                 elapsed_time = time.perf_counter() - start_time
-                time.sleep(60 - elapsed_time)  # Sleep for the remaining time in the minute so that the pipeline does not run multiple times per cron trigger.
+                time.sleep(
+                    60 - elapsed_time
+                )  # Sleep for the remaining time in the minute so that the pipeline does not run multiple times per cron trigger.
             else:
                 time.sleep(1)
-
 
     def get_step_count(self):
         """
@@ -132,7 +137,9 @@ class Pipeline(ABC):
         for step in self._steps:
             for step_dependency in step.get_step_requirements():
                 if step_dependency not in provided_keys:
-                    raise Exception(f"Step {step.get_step_name()} requires {step_dependency} to be provided.")
+                    raise Exception(
+                        f"Step {step.get_step_name()} requires {step_dependency} to be provided."
+                    )
 
     def __verify_step_ordering(self):
         """
@@ -160,4 +167,3 @@ class Pipeline(ABC):
 
     def add_metrics_exporter(self, exporter):
         self._metrics_exporters.append(exporter)
-
