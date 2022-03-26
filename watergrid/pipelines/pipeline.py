@@ -164,7 +164,9 @@ class Pipeline(ABC):
             self.__process_step_output(context, step.get_step_provides(), next_contexts)
         return next_contexts
 
-    def __process_step_output(self, context: DataContext, step_provides: list, next_contexts: list):
+    def __process_step_output(
+        self, context: DataContext, step_provides: list, next_contexts: list
+    ):
         """
         Performs post-processing on the output of a step.
         :param context: Output from the current step.
@@ -190,7 +192,9 @@ class Pipeline(ABC):
         step.run_step(context)
         self._metrics_store.stop_step_monitoring()
 
-    def __split_context(self, step_provides: list, context: DataContext, next_contexts: list):
+    def __split_context(
+        self, step_provides: list, context: DataContext, next_contexts: list
+    ):
         """
         Splits the context into multiple contexts based on the output of the current step.
         :param step_provides: The list of data keys that the current step provides.
@@ -198,16 +202,16 @@ class Pipeline(ABC):
         :param next_contexts: The list of contexts that will be passed to the next step.
         :return: None
         """
-        split_key = step_provides[
-            0
-        ]
+        split_key = step_provides[0]
         split_value = context.get(split_key)
         for value in split_value:
             new_context = self.__deep_copy_context(context)
             new_context.set(split_key, value)
             next_contexts.append(new_context)
 
-    def __filter_context(self, step_provides: list, context: DataContext, next_contexts: list):
+    def __filter_context(
+        self, step_provides: list, context: DataContext, next_contexts: list
+    ):
         """
         Forwards the context to the next step if the given filter key is present.
         :param step_provides: The list of context keys that the step provides.
