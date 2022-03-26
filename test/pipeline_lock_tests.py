@@ -44,5 +44,5 @@ class PipelineLockTests(unittest.TestCase):
             lock.ping()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()
