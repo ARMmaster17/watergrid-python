@@ -1,4 +1,5 @@
 import unittest
+from time import sleep
 
 from watergrid.locks import RedisPipelineLock
 
@@ -37,3 +38,9 @@ class PipelineTestCase(unittest.TestCase):
         redis_lock.lock()
         redis_lock.extend_lease()
         redis_lock.unlock()
+
+    def test_can_write_keys(self):
+        redis_lock = RedisPipelineLock()
+        redis_lock.connect()
+        redis_lock.write_key("key", "value2")
+        self.assertEqual("value", redis_lock.read_key("key"))

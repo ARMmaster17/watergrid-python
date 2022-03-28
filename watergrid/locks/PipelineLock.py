@@ -47,3 +47,11 @@ class PipelineLock(ABC):
     @abstractmethod
     def release(self):
         pass
+
+    @abstractmethod
+    def read_key(self, key: str):
+        pass
+
+    @abstractmethod
+    def write_key(self, key: str, value: str):
+        pass

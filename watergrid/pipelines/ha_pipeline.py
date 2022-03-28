@@ -11,11 +11,7 @@ class HAPipeline(Pipeline):
     machines fails, or if the pipeline context times out, the pipeline will run on another machine.
 
     :param pipeline_name: The name of the pipeline.
-    :param redis_host: The host of the redis server.
-    :param redis_port: The port of the redis server.
-    :param redis_db: The database of the redis server.
-    :param lock_timeout: The length of time granted with a global lock. Should be set to a value that is high enough to
-        allow for the pipeline to finish under a single lock.
+    :param pipeline_lock: The lock implementation to use for this pipeline.
     """
 
     def __init__(self, pipeline_name: str, pipeline_lock: PipelineLock):
@@ -25,10 +21,7 @@ class HAPipeline(Pipeline):
     def run(self):
         self.verify_pipeline()
         if self.__pipeline_lock.lock():
-            context = DataContext()
-            for step in self._steps:
-                self.__pipeline_lock.ping()
-                step.run_step(context)
+            super().run()
             self.__pipeline_lock.unlock()
         else:
             logging.debug(
