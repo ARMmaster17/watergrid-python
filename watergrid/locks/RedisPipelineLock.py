@@ -50,7 +50,7 @@ class RedisPipelineLock(PipelineLock):
         self.__lock.release()
 
     def read_key(self, key: str):
-        self.__redis.get(key)
+        return self.__redis.get(key)
 
     def write_key(self, key: str, value: str):
         self.__redis.set(key, value)

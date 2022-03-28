@@ -53,5 +53,5 @@ class PipelineLock(ABC):
         pass
 
     @abstractmethod
-    def write_key(self, key: str, value: str):
+    def write_key(self, key: str, value):
         pass

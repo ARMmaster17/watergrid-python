@@ -42,5 +42,5 @@ class PipelineTestCase(unittest.TestCase):
     def test_can_write_keys(self):
         redis_lock = RedisPipelineLock()
         redis_lock.connect()
-        redis_lock.write_key("key", "value2")
-        self.assertEqual("value", redis_lock.read_key("key"))
+        redis_lock.write_key("key", "value3")
+        self.assertEqual("value3", redis_lock.read_key("key").decode("utf-8"))

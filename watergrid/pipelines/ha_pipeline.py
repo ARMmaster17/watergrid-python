@@ -1,4 +1,5 @@
 import logging
+import time
 
 from watergrid.context import DataContext
 from watergrid.locks.PipelineLock import PipelineLock
@@ -22,6 +23,31 @@ class HAPipeline(Pipeline):
         self.verify_pipeline()
         if self.__pipeline_lock.lock():
             super().run()
+            self.__pipeline_lock.unlock()
+        else:
+            logging.debug(
+                "Pipeline {} is already running on another instance".format(
+                    self.get_pipeline_name()
+                )
+            )
+
+    def run_scheduled(self, job_interval_s: int):
+        self.verify_pipeline()
+        if self.__pipeline_lock.lock():
+            last_run = self.__pipeline_lock.read_key("{}_last_run".format(self.get_pipeline_name()))
+            if last_run is None:
+                self.__pipeline_lock.write_key("{}_last_run".format(self.get_pipeline_name()), time.perf_counter() - job_interval_s)
+            if time.perf_counter() - last_run > job_interval_s * 3:
+                logging.warning(
+                    "Pipeline {} has fallen more than three cycles behind. Consider increasing the job interval or "
+                    "provisioning more machines.".format(
+                        self.get_pipeline_name()
+                    )
+                )
+                self.__pipeline_lock.write_key("{}_last_run".format(self.get_pipeline_name()), time.perf_counter() - job_interval_s)
+            if time.perf_counter() - last_run > job_interval_s:
+                super().run()
+                self.__pipeline_lock.write_key("{}_last_run".format(self.get_pipeline_name()), last_run + job_interval_s)
             self.__pipeline_lock.unlock()
         else:
             logging.debug(
