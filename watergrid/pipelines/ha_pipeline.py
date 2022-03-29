@@ -149,10 +149,10 @@ class HAPipeline(Pipeline):
         return float(sum(self.__lock_timings)) / float(len(self.__lock_timings))
 
     def _calculate_delay(
-            self,
-            pipeline_interval_s: int,
-            checks_per_interval: int = 10,
-            check_ratio: int = 3,
+        self,
+        pipeline_interval_s: int,
+        checks_per_interval: int = 10,
+        check_ratio: int = 3,
     ) -> int:
         """
         Calculates the delay in milliseconds to wait before running the pipeline again. This is based on the configured
