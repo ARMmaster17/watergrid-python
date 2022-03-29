@@ -51,4 +51,6 @@ class PipelineTestCase(unittest.TestCase):
         timestamp = time.time()
         redis_lock.connect()
         redis_lock.write_key("timekey", timestamp)
-        self.assertEqual(timestamp, float(redis_lock.read_key("timekey").decode("utf-8")))
+        self.assertEqual(
+            timestamp, float(redis_lock.read_key("timekey").decode("utf-8"))
+        )

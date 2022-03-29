@@ -74,14 +74,12 @@ class HAPipeline(Pipeline):
         :return: None
         """
         last_run = self._get_last_run()
-        if last_run is 0:
+        if last_run == 0:
             self._set_last_run(time.time() - job_interval_s)
         if time.time() - last_run > job_interval_s * 3:
             logging.warning(
                 "Pipeline {} has fallen more than three cycles behind. Consider increasing the job interval or "
-                "provisioning more machines.".format(
-                    self.get_pipeline_name()
-                )
+                "provisioning more machines.".format(self.get_pipeline_name())
             )
             self._set_last_run(time.time() - job_interval_s)
 
@@ -150,7 +148,12 @@ class HAPipeline(Pipeline):
             return 0
         return float(sum(self.__lock_timings)) / float(len(self.__lock_timings))
 
-    def _calculate_delay(self, pipeline_interval_s: int, checks_per_interval: int = 10, check_ratio: int = 3) -> int:
+    def _calculate_delay(
+            self,
+            pipeline_interval_s: int,
+            checks_per_interval: int = 10,
+            check_ratio: int = 3,
+    ) -> int:
         """
         Calculates the delay in milliseconds to wait before running the pipeline again. This is based on the configured
         pipeline interval, and the average performance of the backend hosting the pipeline lock.
@@ -162,7 +165,9 @@ class HAPipeline(Pipeline):
         redis_delay_ms = self.get_average_lock_delay()
         job_delay_ms = float(pipeline_interval_s * 1000) / float(checks_per_interval)
         if redis_delay_ms > job_delay_ms:
-            logging.warning("Slow redis cluster detected. Consider increasing the size of your cluster.")
+            logging.warning(
+                "Slow redis cluster detected. Consider increasing the size of your cluster."
+            )
         return int(max(redis_delay_ms, job_delay_ms)) * check_ratio
 
     def _append_timing(self, timing: float) -> None:

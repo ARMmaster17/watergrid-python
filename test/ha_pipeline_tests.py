@@ -103,6 +103,14 @@ class HAPipelineTestCase(unittest.TestCase):
         self.assertTrue(step1.get_flag())
         self.assertIsNotNone(pipeline._get_last_run())
 
+    def test_pipeline_locks_with_benchmarking(self):
+        pipeline_lock = MockPipelineLock()
+        pipeline = HAPipeline("test_pipeline", pipeline_lock)
+        pipeline.lock_with_timing()
+        self.assertTrue(pipeline_lock.has_lock())
+        pipeline.unlock_with_timing()
+        self.assertFalse(pipeline_lock.has_lock())
+        self.assertNotEqual(0, pipeline.get_average_lock_delay())
 
 
 if __name__ == "__main__":
