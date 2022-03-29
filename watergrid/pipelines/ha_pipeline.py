@@ -1,7 +1,6 @@
 import logging
 import time
 
-from watergrid.context import DataContext
 from watergrid.locks.PipelineLock import PipelineLock
 from watergrid.pipelines.pipeline import Pipeline
 
@@ -75,7 +74,7 @@ class HAPipeline(Pipeline):
         :return: None
         """
         last_run = self._get_last_run()
-        if last_run is None:
+        if last_run is 0:
             self._set_last_run(time.time() - job_interval_s)
         if time.time() - last_run > job_interval_s * 3:
             logging.warning(
@@ -104,7 +103,7 @@ class HAPipeline(Pipeline):
         :param last_run: Timestamp to record as the last run of this pipeline.
         :return: None
         """
-        self.__pipeline_lock.write_key(self._get_pipline_lock_name(), last_run)
+        self.__pipeline_lock.write_key(self._get_pipeline_lock_name(), last_run)
 
     def _get_last_run(self) -> float:
         """
@@ -112,9 +111,12 @@ class HAPipeline(Pipeline):
         keeps the interval defined by job_interval_s, and may not represent the exact time of the last run.
         :return: Timestamp of the last run of this pipeline.
         """
-        return float(self.__pipeline_lock.read_key(self._get_pipline_lock_name()).decode("utf-8"))
+        try:
+            return float(self.__pipeline_lock.read_key(self._get_pipeline_lock_name()))
+        except TypeError:
+            return 0
 
-    def _get_pipline_lock_name(self) -> str:
+    def _get_pipeline_lock_name(self) -> str:
         """
         Builds the name of the lock assigned to this pipeline.
         :return: Pipeline lock name.

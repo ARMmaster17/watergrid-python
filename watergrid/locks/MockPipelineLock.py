@@ -3,7 +3,10 @@ from watergrid.locks.PipelineLock import PipelineLock
 
 class MockPipelineLock(PipelineLock):
     def read_key(self, key: str):
-        return self.__key_value[key]
+        try:
+            return self.__key_value[key]
+        except KeyError:
+            return None
 
     def write_key(self, key: str, value: str):
         self.__key_value[key] = value
