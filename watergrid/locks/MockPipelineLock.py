@@ -2,10 +2,20 @@ from watergrid.locks.PipelineLock import PipelineLock
 
 
 class MockPipelineLock(PipelineLock):
+    def read_key(self, key: str):
+        try:
+            return self.__key_value[key]
+        except KeyError:
+            return None
+
+    def write_key(self, key: str, value: str):
+        self.__key_value[key] = value
+
     def __init__(self, lock_timeout: int = 60):
         super().__init__(lock_timeout)
         self.external_lock = False
         self.client_lock = False
+        self.__key_value = {}
 
     def manual_lock(self):
         self.external_lock = True
