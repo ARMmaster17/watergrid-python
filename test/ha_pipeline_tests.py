@@ -52,6 +52,16 @@ class HAPipelineTestCase(unittest.TestCase):
         pipeline.run()
         self.assertFalse(mock_lock.has_lock())
 
+    def test_pipeline_calculates_redis_delay(self):
+        pipeline = HAPipeline("test_pipeline", MockPipelineLock())
+        pipeline._append_timing(10000)
+        pipeline._append_timing(20000)
+        self.assertEqual(15000, pipeline.get_average_lock_delay())
+
+    def test_pipeline_calculates_job_interval_delay(self):
+        pipeline = HAPipeline("test_pipeline", MockPipelineLock())
+        self.assertEqual(3000, pipeline._calculate_delay(10))
+
 
 if __name__ == "__main__":
     unittest.main()
