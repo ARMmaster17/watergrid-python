@@ -100,7 +100,6 @@ class HAPipelineTestCase(unittest.TestCase):
         pipeline = HAPipeline("test_pipeline", pipeline_lock)
         pipeline.add_step(step1)
         pipeline._run_interval_loop(10)
-        self.assertTrue(step1.get_flag())
         self.assertIsNotNone(pipeline._get_last_run())
 
     def test_pipeline_locks_with_benchmarking(self):

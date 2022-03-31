@@ -72,3 +72,53 @@ class PipelineVerifier:
                 raise Exception(
                     f"Step {step.get_step_name()} requires {step_dependency} to be provided."
                 )
+
+    @staticmethod
+    def verify_pipeline_step_ordering(pipeline_steps: list) -> None:
+        """
+        Verifies that all steps in the pipeline are in the correct order.
+        :return: None
+        """
+        # Get a list of all provided data keys.
+        provided_keys = []
+        step_index = 0
+        index_hop_count = 0
+        while step_index < len(pipeline_steps):
+            index_hop_count += 1
+            PipelineVerifier.__recursive_loop_failsafe(
+                index_hop_count, len(pipeline_steps)
+            )
+            if PipelineVerifier.__check_step_position_is_correct(
+                pipeline_steps, step_index, provided_keys
+            ):
+                step_index += 1
+
+    @staticmethod
+    def __recursive_loop_failsafe(hop_count: int, total_steps: int) -> None:
+        if hop_count > total_steps**2:
+            raise Exception("Unable to resolve step dependencies.")
+
+    @staticmethod
+    def __check_step_position_is_correct(
+        pipeline_steps: list, step_index: int, provided_keys: list
+    ) -> bool:
+        if not PipelineVerifier.__bump_step_if_dependency_not_met(
+            pipeline_steps, step_index, provided_keys
+        ):
+            provided_keys.extend(
+                PipelineVerifier.__get_unique_step_provides(
+                    pipeline_steps[step_index], provided_keys
+                )
+            )
+            return True
+        return False
+
+    @staticmethod
+    def __bump_step_if_dependency_not_met(
+        pipeline_steps: list, step_index: int, provided_keys: list
+    ) -> bool:
+        for step_dependency in pipeline_steps[step_index].get_step_requirements():
+            if step_dependency not in provided_keys:
+                pipeline_steps.append(pipeline_steps.pop(step_index))
+                return True
+        return False
