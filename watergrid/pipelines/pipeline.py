@@ -5,6 +5,7 @@ import pycron
 
 from watergrid.context import DataContext, OutputMode
 from watergrid.metrics.MetricsStore import MetricsStore
+from watergrid.pipelines.pipeline_verifier import PipelineVerifier
 from watergrid.steps import Step
 
 
@@ -87,42 +88,8 @@ class Pipeline(ABC):
         Verifies that the pipeline is valid and that all step dependencies are met.
         :return: None
         """
-        self.__verify_pipeline_dependencies_fulfilled()
+        PipelineVerifier.verify_pipeline_dependencies_fulfilled(self._steps)
         self.__verify_step_ordering()
-
-    def __verify_pipeline_dependencies_fulfilled(self):
-        """
-        Verifies that all dependencies of the pipeline are fulfilled by at least one other step. Does not check
-        validity of step ordering in the pipeline.
-        :return: None
-        """
-        # Get a list of all provided data keys.
-        provided_keys = self.__get_all_step_provides()
-        # Check that all dependencies are met
-        self.__check_for_unlinked_dependencies(provided_keys)
-
-    def __get_all_step_provides(self) -> list:
-        """
-        Gets a list of all unique keys provided by all steps in the pipeline.
-        :return: List of all data keys provided by all steps in the pipeline.
-        """
-        provides = []
-        for step in self._steps:
-            for step_provider in step.get_step_provides():
-                if step_provider not in provides:
-                    provides.append(step_provider)
-        return provides
-
-    def __check_for_unlinked_dependencies(self, provided_keys: list):
-        for step in self._steps:
-            self.__check_step_dependencies(step, provided_keys)
-
-    def __check_step_dependencies(self, step: Step, provided_keys: list):
-        for step_dependency in step.get_step_requirements():
-            if step_dependency not in provided_keys:
-                raise Exception(
-                    f"Step {step.get_step_name()} requires {step_dependency} to be provided."
-                )
 
     def __verify_step_ordering(self):
         """
