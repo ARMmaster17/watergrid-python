@@ -97,12 +97,23 @@ class Pipeline(ABC):
         :return: None
         """
         # Get a list of all provided data keys.
-        provided_keys = []
+        provided_keys = self.__get_all_step_provides()
+        # Check that all dependencies are met
+        self.__check_for_unlinked_dependencies(provided_keys)
+
+    def __get_all_step_provides(self) -> list:
+        """
+        Gets a list of all unique keys provided by all steps in the pipeline.
+        :return: List of all data keys provided by all steps in the pipeline.
+        """
+        provides = []
         for step in self._steps:
             for step_provider in step.get_step_provides():
-                if step_provider not in provided_keys:
-                    provided_keys.append(step_provider)
-        # Check that all dependencies are met
+                if step_provider not in provides:
+                    provides.append(step_provider)
+        return provides
+
+    def __check_for_unlinked_dependencies(self, provided_keys: list):
         for step in self._steps:
             for step_dependency in step.get_step_requirements():
                 if step_dependency not in provided_keys:
