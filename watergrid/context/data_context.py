@@ -73,3 +73,14 @@ class DataContext:
         :return: Currently configured output mode of the pipeline context.
         """
         return self.output_mode
+
+    @staticmethod
+    def deep_copy_context(context):
+        """
+        Creates a deep copy of a DataContext object.
+        :param context: Context instance to be copied.
+        :return: New copy of the given context instance.
+        """
+        new_context = DataContext()
+        new_context.set_batch(dict(context.get_all()))
+        return new_context

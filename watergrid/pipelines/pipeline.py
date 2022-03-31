@@ -115,11 +115,14 @@ class Pipeline(ABC):
 
     def __check_for_unlinked_dependencies(self, provided_keys: list):
         for step in self._steps:
-            for step_dependency in step.get_step_requirements():
-                if step_dependency not in provided_keys:
-                    raise Exception(
-                        f"Step {step.get_step_name()} requires {step_dependency} to be provided."
-                    )
+            self.__check_step_dependencies(step, provided_keys)
+
+    def __check_step_dependencies(self, step: Step, provided_keys: list):
+        for step_dependency in step.get_step_requirements():
+            if step_dependency not in provided_keys:
+                raise Exception(
+                    f"Step {step.get_step_name()} requires {step_dependency} to be provided."
+                )
 
     def __verify_step_ordering(self):
         """
@@ -216,7 +219,7 @@ class Pipeline(ABC):
         split_key = step_provides[0]
         split_value = context.get(split_key)
         for value in split_value:
-            new_context = self.__deep_copy_context(context)
+            new_context = DataContext.deep_copy_context(context)
             new_context.set(split_key, value)
             next_contexts.append(new_context)
 
@@ -231,7 +234,7 @@ class Pipeline(ABC):
         :return: None
         """
         if context.get(step_provides[0]) is not None:
-            next_contexts.append(self.__deep_copy_context(context))
+            next_contexts.append(DataContext.deep_copy_context(context))
 
     def __forward_context(self, context: DataContext, next_contexts: list):
         """
@@ -240,15 +243,4 @@ class Pipeline(ABC):
         :param next_contexts: List of contexts that will be used by the next step.
         :return: None
         """
-        next_contexts.append(self.__deep_copy_context(context))
-
-    @staticmethod
-    def __deep_copy_context(context: DataContext):
-        """
-        Creates a deep copy of a DataContext object.
-        :param context: Context instance to be copied.
-        :return: New copy of the given context instance.
-        """
-        new_context = DataContext()
-        new_context.set_batch(dict(context.get_all()))
-        return new_context
+        next_contexts.append(DataContext.deep_copy_context(context))
