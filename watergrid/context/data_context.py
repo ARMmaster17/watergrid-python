@@ -1,4 +1,5 @@
 from watergrid.context import OutputMode
+from watergrid.context.context_metadata import ContextMetadata
 
 
 class DataContext:
@@ -10,6 +11,7 @@ class DataContext:
     def __init__(self):
         self.data = {}
         self.output_mode = OutputMode.DIRECT
+        self.metadata = ContextMetadata()
 
     def set(self, key: str, value: object) -> None:
         """
@@ -73,6 +75,21 @@ class DataContext:
         :return: Currently configured output mode of the pipeline context.
         """
         return self.output_mode
+
+    def get_run_metadata(self) -> ContextMetadata:
+        """
+        Gets the metadata associated with the current run.
+        :return: Metadata associated with the current run.
+        """
+        return self.metadata
+
+    def set_run_metadata(self, metadata: ContextMetadata) -> None:
+        """
+        Sets the metadata associated with the current run.
+        :param metadata: Metadata to associate with the current run.
+        :return: None
+        """
+        self.metadata = metadata
 
     @staticmethod
     def deep_copy_context(context):
