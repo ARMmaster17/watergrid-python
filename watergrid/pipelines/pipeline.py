@@ -3,7 +3,7 @@ from abc import ABC
 
 import pycron
 
-from watergrid.context import DataContext, OutputMode
+from watergrid.context import DataContext, OutputMode, ContextMetadata
 from watergrid.metrics.MetricsStore import MetricsStore
 from watergrid.pipelines.pipeline_verifier import PipelineVerifier
 from watergrid.steps import Step
@@ -21,6 +21,7 @@ class Pipeline(ABC):
         self._pipeline_name = pipeline_name
         self._steps = []
         self._metrics_store = MetricsStore()
+        self._last_run = None
 
     def add_step(self, step: Step):
         """
@@ -40,6 +41,7 @@ class Pipeline(ABC):
         self._metrics_store.start_pipeline_monitoring(self._pipeline_name)
         try:
             self.__run_pipeline_steps()
+            self._last_run = time.time()
         except Exception as e:
             self._metrics_store.report_exception(e)
             self._metrics_store.stop_step_monitoring()
@@ -104,9 +106,19 @@ class Pipeline(ABC):
         Performs setup and runs all steps in the pipeline.
         :return:
         """
-        contexts = [DataContext()]
+        contexts = [self.__generate_first_context()]
         for step in self._steps:
             contexts = self.__run_step_for_each_context(step, contexts)
+
+    def __generate_first_context(self) -> DataContext:
+        """
+        Generates the first context for the pipeline.
+        :return: First context.
+        """
+        context = DataContext()
+        context_meta = ContextMetadata(self._last_run)
+        context.set_run_metadata(context_meta)
+        return context
 
     def __run_step_for_each_context(self, step: Step, context_list: list) -> list:
         """
