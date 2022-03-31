@@ -13,7 +13,10 @@ class PipelineVerifier:
         # Get a list of all provided data keys.
         provided_keys = PipelineVerifier.__get_all_step_provides(pipeline_steps)
         # Check that all dependencies are met.
-        PipelineVerifier.__check_for_unlinked_dependencies(provided_keys, pipeline_steps)
+        PipelineVerifier.__check_for_unlinked_dependencies(
+            provided_keys,
+            pipeline_steps
+        )
 
     @staticmethod
     def __get_all_step_provides(pipeline_steps: list) -> list:
@@ -24,7 +27,9 @@ class PipelineVerifier:
         """
         provided_keys = []
         for step in pipeline_steps:
-            provided_keys.extend(PipelineVerifier.__get_unique_step_provides(step, provided_keys))
+            provided_keys.extend(
+                PipelineVerifier.__get_unique_step_provides(step, provided_keys)
+            )
         return provided_keys
 
     @staticmethod
@@ -42,7 +47,9 @@ class PipelineVerifier:
         return new_keys
 
     @staticmethod
-    def __check_for_unlinked_dependencies(provided_keys: list, pipeline_steps: list) -> None:
+    def __check_for_unlinked_dependencies(
+            provided_keys: list, pipeline_steps: list
+    ) -> None:
         """
         Checks that all dependencies of the pipeline are fulfilled by at least one other step. Does not check
         validity of step ordering in the pipeline.
