@@ -14,8 +14,7 @@ class PipelineVerifier:
         provided_keys = PipelineVerifier.__get_all_step_provides(pipeline_steps)
         # Check that all dependencies are met.
         PipelineVerifier.__check_for_unlinked_dependencies(
-            provided_keys,
-            pipeline_steps
+            provided_keys, pipeline_steps
         )
 
     @staticmethod
@@ -48,7 +47,7 @@ class PipelineVerifier:
 
     @staticmethod
     def __check_for_unlinked_dependencies(
-            provided_keys: list, pipeline_steps: list
+        provided_keys: list, pipeline_steps: list
     ) -> None:
         """
         Checks that all dependencies of the pipeline are fulfilled by at least one other step. Does not check
