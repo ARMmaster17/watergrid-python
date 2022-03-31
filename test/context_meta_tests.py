@@ -45,5 +45,5 @@ class ContextMetaTestCase(unittest.TestCase):
         self.assertTrue(step1.get_last_run_flag())
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()
