@@ -66,7 +66,7 @@ class Pipeline(ABC):
                 self.run()
                 elapsed_time = time.perf_counter() - start_time
                 time.sleep(
-                    60 - elapsed_time
+                    60 - (elapsed_time / 1000)
                 )  # Sleep for the remaining time in the minute so that the pipeline does not run multiple times per cron trigger.
             else:
                 time.sleep(1)
@@ -89,31 +89,7 @@ class Pipeline(ABC):
         :return: None
         """
         PipelineVerifier.verify_pipeline_dependencies_fulfilled(self._steps)
-        self.__verify_step_ordering()
-
-    def __verify_step_ordering(self):
-        """
-        Verifies that all steps in the pipeline are in the correct order.
-        :return: None
-        """
-        # Get a list of all provided data keys.
-        provided_keys = []
-        step_index = 0
-        index_hop_count = 0
-        while step_index < len(self._steps):
-            index_hop_count += 1
-            if index_hop_count > len(self._steps) ** 2:
-                raise Exception("Unable to resolve step dependencies.")
-            index_moved = False
-            for step_dependency in self._steps[step_index].get_step_requirements():
-                if step_dependency not in provided_keys:
-                    self._steps.append(self._steps.pop(step_index))
-                    index_moved = True
-                    break
-            if not index_moved:
-                for provided_key in self._steps[step_index].get_step_provides():
-                    provided_keys.append(provided_key)
-                step_index += 1
+        PipelineVerifier.verify_pipeline_step_ordering(self._steps)
 
     def add_metrics_exporter(self, exporter):
         """
