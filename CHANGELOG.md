@@ -14,6 +14,10 @@
 
 ### Security
 
+## [1.0.1] - 2022-04-01
+### Fixed
+- Broken release pipeline to PyPI.
+
 ## [1.0.0] - 2022-04-01
 ### Added
 - Core library functionality.
@@ -28,5 +32,6 @@
 - Staggered node startup no longer causes mid-interval pipeline runs on other nodes in HA mode.
 
 
-[Unreleased]: https://github.com/ARMmaster17/watergrid-python/compare/1.0.0...HEAD
+[Unreleased]: https://github.com/ARMmaster17/watergrid-python/compare/1.0.1...HEAD
+[1.0.1]: https://github.com/ARMmaster17/watergrid-python/compare/1.0.0...1.0.1
 [1.0.0]: https://github.com/ARMmaster17/watergrid-python/releases/tag/1.0.0
