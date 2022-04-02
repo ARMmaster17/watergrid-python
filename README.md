@@ -2,6 +2,7 @@
 [![WaterGrid Tests](https://github.com/ARMmaster17/watergrid-python/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/ARMmaster17/watergrid-python/actions/workflows/ci.yml)
 [![Maintainability](https://api.codeclimate.com/v1/badges/5ecd1367c30a9a8a5c59/maintainability)](https://codeclimate.com/github/ARMmaster17/watergrid-python/maintainability)
 [![Test Coverage](https://api.codeclimate.com/v1/badges/5ecd1367c30a9a8a5c59/test_coverage)](https://codeclimate.com/github/ARMmaster17/watergrid-python/test_coverage)
+![PyPI](https://img.shields.io/pypi/v/watergrid)
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
 
 Lightweight distributed framework for data stream processing.
