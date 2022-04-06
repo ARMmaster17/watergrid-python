@@ -3,6 +3,7 @@
 ## [Unreleased]
 
 ### Added
+- `ConsoleMetricsExporter` for locally debugging pipelines without an APM service.
 
 ### Changed
 - Bumped redis dependency to 4.2.2.
