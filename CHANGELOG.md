@@ -3,9 +3,10 @@
 ## [Unreleased]
 
 ### Added
+- Built-in Elastic APM metrics exporter.
 
 ### Changed
-- Bumped redis dependency to 4.2.2.
+- Bumped `redis` dependency to 4.2.2.
 
 ### Deprecated
 
