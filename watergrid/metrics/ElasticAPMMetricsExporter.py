@@ -7,7 +7,7 @@ class ElasticAPMMetricsExporter(MetricsExporter):
         self.__client = Client(
             service_name=app_name,
             server_url=apm_server_url,
-            secret_token=apm_secret_token
+            secret_token=apm_secret_token,
         )
         instrument()
         self.__pipeline_failed = False
