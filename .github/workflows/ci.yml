@@ -37,7 +37,7 @@ jobs:
         run: |
           pip install unittest-xml-reporting
           mkdir testresults
-          pip install -e ". [lock-redis]"
+          pip install -e .[lock-redis]
       - name: Run tests
         run: |
           python -m xmlrunner discover -s test -p '*.py' -o ./testresults
@@ -84,7 +84,7 @@ jobs:
       - name: Install dependencies
         run: |
           pip install coverage
-          pip install -e ". [lock-redis]"
+          pip install -e .[lock-redis]
       - name: Generate coverage report
         run: |
           coverage run --source=watergrid -m unittest discover -s test -p '*.py'
