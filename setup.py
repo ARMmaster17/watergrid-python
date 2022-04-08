@@ -3,8 +3,6 @@ import versioneer
 
 with open("README.md", "r") as fh:
     long_description = fh.read()
-with open("requirements.txt", "r") as fh:
-    requirements = fh.read().splitlines()
 
 setuptools.setup(
     name="watergrid",
@@ -23,5 +21,12 @@ setuptools.setup(
         "Operating System :: OS Independent",
     ],
     python_requires=">=3.9",
-    install_requires=requirements,
+    install_requires=[
+        "pycron==3.0.0",
+    ],
+    extras_require={
+        "lock-redis": ["redis==4.2.2"],
+        "metrics-elasticsearch": ["elastic-apm==6.8.1"],
+    },
+    setup_requires=["black==22.3.0"],
 )
