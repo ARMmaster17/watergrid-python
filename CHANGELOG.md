@@ -8,6 +8,7 @@
 
 ### Changed
 - Bumped `redis` dependency to 4.2.2.
+- Dependencies for `MetricsExporter` and `PipelineLock` modules must now be installed separately through `watergrid[...]` metapackages.
 
 ### Deprecated
 
