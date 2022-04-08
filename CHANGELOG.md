@@ -3,6 +3,7 @@
 ## [Unreleased]
 
 ### Added
+- `ConsoleMetricsExporter` for locally debugging pipelines without an APM service.
 - Built-in Elastic APM metrics exporter.
 
 ### Changed
