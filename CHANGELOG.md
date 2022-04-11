@@ -5,15 +5,16 @@
 ### Added
 - `ConsoleMetricsExporter` for locally debugging pipelines without an APM service. (#46)
 - Built-in Elastic APM metrics exporter. (#47)
+- `Sequence` class for logical groupings of steps. (#53)
 
 ### Changed
 - Bumped `redis` dependency to 4.2.2. (#50)
-- Dependencies for `MetricsExporter` and `PipelineLock` modules must now be installed separately through `watergrid[...]` metapackages. (#54)
 - Bumped `elastic-apm` to 6.9.1. (#56)
 
 ### Deprecated
 
 ### Removed
+- Dependencies for `MetricsExporter` and `PipelineLock` modules are no longer included in the base package and must now be installed separately through `watergrid[...]` metapackages. (#54)
 
 ### Fixed
 
