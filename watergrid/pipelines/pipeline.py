@@ -6,6 +6,7 @@ import pycron
 from watergrid.context import DataContext, OutputMode, ContextMetadata
 from watergrid.metrics.MetricsStore import MetricsStore
 from watergrid.pipelines.pipeline_verifier import PipelineVerifier
+from watergrid.steps import Sequence
 from watergrid.steps import Step
 
 
@@ -31,6 +32,15 @@ class Pipeline(ABC):
         :type step: Step
         """
         self._steps.append(step)
+
+    def add_steps(self, steps: Sequence):
+        """
+        Adds a sequence of steps to the pipeline.
+        :param steps: Sequence implementation that contains the steps to add.
+        :return: None
+        """
+        for step in steps.export_steps():
+            self.add_step(step)
 
     def run(self):
         """
