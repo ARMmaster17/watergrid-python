@@ -3,18 +3,22 @@
 ## [Unreleased]
 
 ### Added
+
 - `ConsoleMetricsExporter` for locally debugging pipelines without an APM service. (#46)
 - Built-in Elastic APM metrics exporter. (#47)
 - `Sequence` class for logical groupings of steps. (#53)
 
 ### Changed
+
 - Bumped `redis` dependency to 4.2.2. (#50)
 - Bumped `elastic-apm` to 6.9.1. (#56)
 
 ### Deprecated
 
 ### Removed
-- Dependencies for `MetricsExporter` and `PipelineLock` modules are no longer included in the base package and must now be installed separately through `watergrid[...]` metapackages. (#54)
+
+- Dependencies for `MetricsExporter` and `PipelineLock` modules are no longer included in the base package and must
+now be installed separately through `watergrid[...]` metapackages. (#54)
 
 ### Fixed
 
@@ -22,10 +26,12 @@
 
 ## [1.0.1] - 2022-04-01
 ### Fixed
+
 - Broken release pipeline to PyPI.
 
 ## [1.0.0] - 2022-04-01
 ### Added
+
 - Core library functionality.
 - High availability pipeline using the `HAPipeline` class.
 - `RedisLock` for high availability mode using Redis.
@@ -35,6 +41,7 @@
 - Base class for building a metric exporter to an external APM solution.
 
 ### Fixed
+
 - Staggered node startup no longer causes mid-interval pipeline runs on other nodes in HA mode.
 
 
