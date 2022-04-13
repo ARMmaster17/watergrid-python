@@ -19,6 +19,8 @@ jobs:
         run: |
           cd docs
           make html
+          cd _build/html
+          touch .nojekyll
       - name: Push docs to GitHub Pages
         uses: JamesIves/github-pages-deploy-action@v4.2.3
         with:
