@@ -24,7 +24,7 @@ Watergrid
 Lightweight framework for creating ETL and automation pipelines.
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
    :caption: Contents:
 
    getting_started
