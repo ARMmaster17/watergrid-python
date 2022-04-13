@@ -28,8 +28,10 @@ Lightweight framework for creating ETL and automation pipelines.
    :caption: Contents:
 
    getting_started
+   concepts
    pipelines/standalone_pipeline
    pipelines/ha_pipeline
+   working_with_steps
 
 Indices and tables
 ==================
