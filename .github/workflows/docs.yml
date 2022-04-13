@@ -2,7 +2,7 @@ name: Sphinx
 on:
   push:
     branches:
-      - master
+      - main
 jobs:
   sphinx-build:
     runs-on: ubuntu-latest
