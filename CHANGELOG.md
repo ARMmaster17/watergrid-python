@@ -19,6 +19,8 @@
 
 - Dependencies for `MetricsExporter` and `PipelineLock` modules are no longer included in the base package and must
 now be installed separately through `watergrid[...]` metapackages. (#54)
+- Documentation from Readme. Docs now located at
+[https://armmaster17.github.io/watergrid-python/](https://armmaster17.github.io/watergrid-python/). (#65)
 
 ### Fixed
 
