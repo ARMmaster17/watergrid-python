@@ -22,7 +22,7 @@ copyright = "2022, Joshua Zenn (ARMmaster17)"
 author = "Joshua Zenn (ARMmaster17)"
 
 # The full version, including alpha/beta/rc tags
-release = "1.0.0-rc2"
+release = "1.0.1"
 
 
 # -- General configuration ---------------------------------------------------
@@ -55,4 +55,4 @@ html_theme = "classic"
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ["_static"]
 
-html_baseurl = '/watergrid-python/'
+html_baseurl = "/watergrid-python/"
