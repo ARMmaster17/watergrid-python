@@ -1,0 +1,173 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>Working With Steps &#8212; Watergrid 1.0.1 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/classic.css" />
+    
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    
+    <link rel="canonical" href="/watergrid-python/working_with_steps.html" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="HAPipeline" href="pipelines/ha_pipeline.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="pipelines/ha_pipeline.html" title="HAPipeline"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">Watergrid 1.0.1 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Working With Steps</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="working-with-steps">
+<h1>Working With Steps<a class="headerlink" href="#working-with-steps" title="Permalink to this headline">¶</a></h1>
+<section id="custom-steps">
+<h2>Custom Steps<a class="headerlink" href="#custom-steps" title="Permalink to this headline">¶</a></h2>
+<p>Every step of your pipeline should be its own class and inherit from the <cite>Step</cite> class. Here is an example:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">watergrid.steps</span> <span class="kn">import</span> <span class="n">Step</span>
+<span class="kn">from</span> <span class="nn">watergrid.context</span> <span class="kn">import</span> <span class="n">DataContext</span>
+
+<span class="k">class</span> <span class="nc">AddValueStep</span><span class="p">(</span><span class="n">Step</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># Use requires to denote which steps need to run before this one, and</span>
+        <span class="c1"># use provides to denote which steps can run after this one.</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span> <span class="n">requires</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;value&#39;</span><span class="p">],</span> <span class="n">provides</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;added_value&#39;</span><span class="p">])</span>
+
+    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">context</span><span class="p">:</span> <span class="n">DataContext</span><span class="p">):</span>
+        <span class="c1"># Use the context object to pass values between steps.</span>
+        <span class="n">context</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">&#39;added_value&#39;</span><span class="p">,</span> <span class="n">context</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;value&#39;</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Note that the <cite>requires</cite> and <cite>provides</cite> lists are optional. If you do not specify them, the step will run
+in any order in the pipeline. The keys provided in the two lists can be arbitrary, and do not need to match
+the name of your step or any of the context keys that it utilizes.</p>
+</section>
+<section id="split-steps">
+<h2>Split Steps<a class="headerlink" href="#split-steps" title="Permalink to this headline">¶</a></h2>
+<p>Sometimes you will have a pipeline step that will have a list of several values,
+and you want to split the list so that subsequent steps will run once for each value. The split step
+will perform the conversion of 1:X contexts after the step completes.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">watergrid.steps</span> <span class="kn">import</span> <span class="n">Step</span>
+<span class="kn">from</span> <span class="nn">watergrid.context</span> <span class="kn">import</span> <span class="n">DataContext</span>
+<span class="kn">from</span> <span class="nn">watergrid.context</span> <span class="kn">import</span> <span class="n">OutputMode</span>
+
+<span class="k">class</span> <span class="nc">AddValuesStep</span><span class="p">(</span><span class="n">Step</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span> <span class="n">provides</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;added_value&#39;</span><span class="p">])</span>
+
+    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">context</span><span class="p">:</span> <span class="n">DataContext</span><span class="p">):</span>
+        <span class="n">context</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">&#39;added_value&#39;</span><span class="p">,</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">])</span>
+        <span class="n">context</span><span class="o">.</span><span class="n">set_output_mode</span><span class="p">(</span><span class="n">OutputMode</span><span class="o">.</span><span class="n">SPLIT</span><span class="p">)</span>
+        <span class="c1"># The pipeline will automatically split the first key listed in provides[].</span>
+        <span class="c1"># For example, in the next step context.get(&#39;added_value&#39;) will return 0.</span>
+        <span class="c1"># Then the next step will run again with the values 1, 2, 3, etc...</span>
+</pre></div>
+</div>
+</section>
+<section id="filter-steps">
+<h2>Filter Steps<a class="headerlink" href="#filter-steps" title="Permalink to this headline">¶</a></h2>
+<p>Filter steps have the option to pass back the value of <cite>None</cite>. If this is the case, this instance of the context will be deleted and not passed to the next step. Works great after split steps.</p>
+<p>Note that the pipeline will only filter the first field listed in the provides list.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">watergrid.steps</span> <span class="kn">import</span> <span class="n">Step</span>
+<span class="kn">from</span> <span class="nn">watergrid.context</span> <span class="kn">import</span> <span class="n">DataContext</span>
+<span class="kn">from</span> <span class="nn">watergrid.context</span> <span class="kn">import</span> <span class="n">OutputMode</span>
+<span class="k">class</span> <span class="nc">FilterStep</span><span class="p">(</span><span class="n">Step</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span> <span class="n">requires</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;value&#39;</span><span class="p">],</span> <span class="n">provides</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;filtered_value&#39;</span><span class="p">])</span>
+
+    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">context</span><span class="p">:</span> <span class="n">DataContext</span><span class="p">):</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;value&#39;</span><span class="p">)</span>
+        <span class="n">context</span><span class="o">.</span><span class="n">set_output_mode</span><span class="p">(</span><span class="n">OutputMode</span><span class="o">.</span><span class="n">FILTER</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">value</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">context</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">&#39;filtered_value&#39;</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span> <span class="c1"># If the value is 1, pass it along to the next step.</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">context</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s1">&#39;filtered_value&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="c1"># If the value is zero, delete this context and don&#39;t pass it to the next step.</span>
+</pre></div>
+</div>
+</section>
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <div>
+    <h3><a href="index.html">Table of Contents</a></h3>
+    <ul>
+<li><a class="reference internal" href="#">Working With Steps</a><ul>
+<li><a class="reference internal" href="#custom-steps">Custom Steps</a></li>
+<li><a class="reference internal" href="#split-steps">Split Steps</a></li>
+<li><a class="reference internal" href="#filter-steps">Filter Steps</a></li>
+</ul>
+</li>
+</ul>
+
+  </div>
+  <div>
+    <h4>Previous topic</h4>
+    <p class="topless"><a href="pipelines/ha_pipeline.html"
+                          title="previous chapter">HAPipeline</a></p>
+  </div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/working_with_steps.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="pipelines/ha_pipeline.html" title="HAPipeline"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">Watergrid 1.0.1 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Working With Steps</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2022, Joshua Zenn (ARMmaster17).
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.5.0.
+    </div>
+  </body>
+</html>

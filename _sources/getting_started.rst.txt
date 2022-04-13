@@ -29,7 +29,7 @@ Create a file called ``main.py`` and paste the following code into it:
             print("Hello World!")
 
     def main():
-       pipeline = StandalonePipeline('tutorial_pipeline)
+       pipeline = StandalonePipeline('tutorial_pipeline')
        pipeline.add_step(SampleStep())
        pipeline.run()
 

@@ -6,7 +6,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-    <title>HAPipeline &#8212; Watergrid 1.0.0-rc2 documentation</title>
+    <title>HAPipeline &#8212; Watergrid 1.0.1 documentation</title>
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../_static/classic.css" />
     
@@ -18,6 +18,7 @@
     <link rel="canonical" href="/watergrid-python/pipelines/ha_pipeline.html" />
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Working With Steps" href="../working_with_steps.html" />
     <link rel="prev" title="StandalonePipeline" href="standalone_pipeline.html" /> 
   </head><body>
     <div class="related" role="navigation" aria-label="related navigation">
@@ -27,9 +28,12 @@
           <a href="../genindex.html" title="General Index"
              accesskey="I">index</a></li>
         <li class="right" >
+          <a href="../working_with_steps.html" title="Working With Steps"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
           <a href="standalone_pipeline.html" title="StandalonePipeline"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../index.html">Watergrid 1.0.0-rc2 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">Watergrid 1.0.1 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">HAPipeline</a></li> 
       </ul>
     </div>  
@@ -41,6 +45,44 @@
             
   <section id="hapipeline">
 <h1>HAPipeline<a class="headerlink" href="#hapipeline" title="Permalink to this headline">¶</a></h1>
+<p>In HA mode, you can have several servers running on separate machines. Only
+one server will be able to run the pipeline at a time. If a machine fails, another will take over.</p>
+<section id="steps">
+<h2>Steps<a class="headerlink" href="#steps" title="Permalink to this headline">¶</a></h2>
+<ol class="arabic simple">
+<li><p>Install WaterGrid-Python <cite>pip install watergrid==1.0.1</cite></p></li>
+<li><p>Install Redis (or use the <cite>PipelineLock</cite> class to create your own global mutex).</p></li>
+<li><p>Create a pipeline and run it.</p></li>
+</ol>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">watergrid.pipelines</span> <span class="kn">import</span> <span class="n">HAPipeline</span>
+<span class="kn">from</span> <span class="nn">watergrid.steps</span> <span class="kn">import</span> <span class="n">Step</span>
+<span class="kn">from</span> <span class="nn">watergrid.context</span> <span class="kn">import</span> <span class="n">DataContext</span>
+<span class="kn">from</span> <span class="nn">watergrid.locks</span> <span class="kn">import</span> <span class="n">RedisPipelineLock</span>
+
+<span class="k">class</span> <span class="nc">SampleStep</span><span class="p">(</span><span class="n">Step</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">context</span><span class="p">:</span> <span class="n">DataContext</span><span class="p">):</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Hello World!&quot;</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
+    <span class="n">pipeline_name</span> <span class="o">=</span> <span class="s2">&quot;sample_pipeline&quot;</span>
+    <span class="n">redis_lock</span> <span class="o">=</span> <span class="n">RedisPipelineLock</span><span class="p">()</span>
+    <span class="c1"># Call redis_lock.set_XXXX to configure connection properties if needed.</span>
+    <span class="n">redis_lock</span><span class="o">.</span><span class="n">connect</span><span class="p">()</span> <span class="c1"># Required by RedisPipelineLock, does not apply to all locks.</span>
+    <span class="n">pipeline</span> <span class="o">=</span> <span class="n">HAPipeline</span><span class="p">(</span><span class="n">pipeline_name</span><span class="p">,</span> <span class="n">redis_lock</span><span class="p">)</span>
+    <span class="n">pipeline</span><span class="o">.</span><span class="n">add_step</span><span class="p">(</span><span class="n">SampleStep</span><span class="p">())</span>
+    <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+        <span class="n">pipeline</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="n">main</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>If Redis is not running on localhost on port 6379, you can call <cite>redis_lock.set_XXXX()</cite> to set those values accordingly.</p>
+</section>
 </section>
 
 
@@ -51,9 +93,24 @@
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
   <div>
+    <h3><a href="../index.html">Table of Contents</a></h3>
+    <ul>
+<li><a class="reference internal" href="#">HAPipeline</a><ul>
+<li><a class="reference internal" href="#steps">Steps</a></li>
+</ul>
+</li>
+</ul>
+
+  </div>
+  <div>
     <h4>Previous topic</h4>
     <p class="topless"><a href="standalone_pipeline.html"
                           title="previous chapter">StandalonePipeline</a></p>
+  </div>
+  <div>
+    <h4>Next topic</h4>
+    <p class="topless"><a href="../working_with_steps.html"
+                          title="next chapter">Working With Steps</a></p>
   </div>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
@@ -83,9 +140,12 @@
           <a href="../genindex.html" title="General Index"
              >index</a></li>
         <li class="right" >
+          <a href="../working_with_steps.html" title="Working With Steps"
+             >next</a> |</li>
+        <li class="right" >
           <a href="standalone_pipeline.html" title="StandalonePipeline"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../index.html">Watergrid 1.0.0-rc2 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">Watergrid 1.0.1 documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">HAPipeline</a></li> 
       </ul>
     </div>
