@@ -26,10 +26,12 @@ the box.
 
 ## Getting Started
 
-Creating an ETL pipeline wit Watergrid is as simple as:
+Creating an ETL pipeline with Watergrid is very easy.
 
+1. Install Python 3.7 or later (the last two stable releases are
+tested in GitHub Actions).
 1. Run `pip install watergrid`
-1. Paste the following code into a Python file:
+1. Paste the following code into a file named `main.py`:
 
 ```python
 from watergrid.pipelines import StandalonePipeline
@@ -53,10 +55,23 @@ if __name__ == '__main__':
    main()
 ```
 
-Check out the [documentation site](https://armmaster17.github.io/watergrid-python/getting_started.html)
-to learn more.
+Then run `python main.py` to run the pipeline. You should see Hello World!
+printed to the console.
+
+Check out the [getting started section of the documentation site](https://armmaster17.github.io/watergrid-python/getting_started.html)
+to build more advanced pipelines with multiple steps and high-availability.
+
+## Getting Help
+
+There are plenty of places to get help with Watergrid.
+
+- Check the in-line documentation in the Python source.
+- Read the online documentation on [GitHub Pages](https://armmaster17.github.io/watergrid-python/index.html).
+- Make a post in the [Discussions Tab](https://github.com/ARMmaster17/watergrid-python/discussions).
+- Open an issue if you think the problem is with Watergrid, or if you have a
+feature to suggest.
 
 ## Example Projects
 
 - [RSSMQ](https://github.com/ARMmaster17/rssmq/tree/126-refactor-to-use-watergrid) - Forwards RSS feed items to various HTTP APIs.
-- [atc-metrics-streamer](https://github.com/ARMmaster17/atc-metrics-streamer/tree/watergrid-transplant) - Streams metrics from Apache Traffic Control to Kafka.
+- [atc-metrics-streamer](https://github.com/ARMmaster17/atc-metrics-streamer) - Streams metrics from Apache Traffic Control to Kafka.
