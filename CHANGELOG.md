@@ -24,6 +24,9 @@ now be installed separately through `watergrid[...]` metapackages. (#54)
 
 ### Fixed
 
+- Resolved issue with objects inside a `DataContext` not being copied when the
+  output mode of a step is set to `SPLIT`. (#6)
+
 ### Security
 
 ## [1.0.1] - 2022-04-01
