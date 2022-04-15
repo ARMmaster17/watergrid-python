@@ -1,3 +1,4 @@
+import copy
 import time
 from abc import ABC
 
@@ -184,7 +185,8 @@ class Pipeline(ABC):
         split_key = step_provides[0]
         split_value = context.get(split_key)
         for value in split_value:
-            new_context = DataContext.deep_copy_context(context)
+            new_context = copy.deepcopy(context)
+            new_context.set_output_mode(OutputMode.DIRECT)
             new_context.set(split_key, value)
             next_contexts.append(new_context)
 
@@ -199,7 +201,9 @@ class Pipeline(ABC):
         :return: None
         """
         if context.get(step_provides[0]) is not None:
-            next_contexts.append(DataContext.deep_copy_context(context))
+            new_context = copy.deepcopy(context)
+            new_context.set_output_mode(OutputMode.DIRECT)
+            next_contexts.append(new_context)
 
     def __forward_context(self, context: DataContext, next_contexts: list):
         """
@@ -208,4 +212,4 @@ class Pipeline(ABC):
         :param next_contexts: List of contexts that will be used by the next step.
         :return: None
         """
-        next_contexts.append(DataContext.deep_copy_context(context))
+        next_contexts.append(copy.deepcopy(context))
