@@ -1,3 +1,4 @@
+import base64
 import copy
 import time
 from abc import ABC
@@ -111,6 +112,18 @@ class Pipeline(ABC):
         :return: None
         """
         self._metrics_store.add_metrics_exporter(exporter)
+
+    def get_pipeline_guid(self):
+        """
+        Generates a unique identifier for the pipeline that can be used to
+        identify all pipelines that have the same steps in the same order with
+        the same name.
+        :return: GUID of the pipeline.
+        """
+        result = self._pipeline_name
+        for step in self._steps:
+            result += step.get_step_name() + type(step).__name__
+        return base64.urlsafe_b64encode(result.encode("utf-8"))
 
     def __run_pipeline_steps(self):
         """
