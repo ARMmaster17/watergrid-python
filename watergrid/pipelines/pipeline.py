@@ -133,6 +133,8 @@ class Pipeline(ABC):
         contexts = [self.__generate_first_context()]
         for step in self._steps:
             contexts = self.__run_step_for_each_context(step, contexts)
+            if len(contexts) == 0:
+                break
 
     def __generate_first_context(self) -> DataContext:
         """

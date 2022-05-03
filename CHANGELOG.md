@@ -26,6 +26,7 @@ now be installed separately through `watergrid[...]` metapackages. (#54)
 
 - Resolved issue with objects inside a `DataContext` not being copied when the
   output mode of a step is set to `SPLIT`. (#6)
+- Pipeline now stops running if there are no more contexts to process in a new step. (#78)
 
 ### Security
 
