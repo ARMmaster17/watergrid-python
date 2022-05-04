@@ -28,8 +28,7 @@ the box.
 
 Creating an ETL pipeline with Watergrid is very easy.
 
-1. Install Python 3.7 or later (the last two stable releases are
-tested in GitHub Actions).
+1. Install Python 3.6 or later (other versions may be supported, but are not tested regularly).
 1. Run `pip install watergrid`
 1. Paste the following code into a file named `main.py`:
 
