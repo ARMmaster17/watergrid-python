@@ -3,7 +3,7 @@ import unittest
 
 from watergrid.context import DataContext
 from watergrid.locks import MockPipelineLock
-from watergrid.pipelines import HAPipeline
+from watergrid.pipelines.ha_pipeline import HAPipeline
 from watergrid.steps import Step
 
 
