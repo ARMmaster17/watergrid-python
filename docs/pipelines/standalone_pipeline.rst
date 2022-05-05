@@ -13,7 +13,7 @@ Steps
 
 .. code-block:: python
 
-    from watergrid.pipelines import StandalonePipeline
+    from watergrid.pipelines.standalone_pipeline import StandalonePipeline
     from watergrid.steps import Step
     from watergrid.context import DataContext
 

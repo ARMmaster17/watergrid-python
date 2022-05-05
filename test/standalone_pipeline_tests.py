@@ -1,6 +1,6 @@
 import unittest
 
-from watergrid.pipelines import StandalonePipeline
+from watergrid.pipelines.standalone_pipeline import StandalonePipeline
 
 
 class StandalonePipelineTestCases(unittest.TestCase):

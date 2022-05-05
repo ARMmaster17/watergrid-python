@@ -33,7 +33,7 @@ Creating an ETL pipeline with Watergrid is very easy.
 1. Paste the following code into a file named `main.py`:
 
 ```python
-from watergrid.pipelines import StandalonePipeline
+from watergrid.pipelines.standalone_pipeline import StandalonePipeline
 from watergrid.steps import Step
 from watergrid.context import DataContext
 

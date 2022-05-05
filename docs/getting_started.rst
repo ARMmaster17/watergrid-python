@@ -17,7 +17,7 @@ Create a file called ``main.py`` and paste the following code into it:
 
 .. code-block:: python
 
-    from watergrid.pipelines import StandalonePipeline
+    from watergrid.pipelines.standalone_pipeline import StandalonePipeline
     from watergrid.steps import Step
     from watergrid.context import DataContext
 

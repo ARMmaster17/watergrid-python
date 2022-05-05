@@ -2,12 +2,14 @@
 
 ## Supported Versions
 
-While developing the initial alpha release (v1.0.0), only the latest build from the `main` branch will recieve security updates.
-Older revisions will not recieve backported updates.
+Only the latest minor version of WaterGrid will be supported for security updates.
+Older revisions will not receive backported updates.
 
 | Version | Supported          |
-| ------- | ------------------ |
-| 0.x.x   | :white_check_mark: |
+|---------|--------------------|
+| 1.1.x   | :white_check_mark: |
+| 1.0.x   | :x:                |
+| 0.x.x   | :x:                |
 
 ## Reporting a Vulnerability
 

@@ -1,6 +1,5 @@
 import time
 import unittest
-from time import sleep
 
 from watergrid.locks import RedisPipelineLock
 

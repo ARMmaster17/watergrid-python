@@ -3,7 +3,6 @@
 ## [Unreleased]
 
 ### Added
-- Support for Python 3.6 through 3.10. (#90)
 
 ### Changed
 
@@ -14,6 +13,17 @@
 ### Fixed
 
 ### Security
+
+## [1.1.1] - 2022-05-05
+
+### Added
+
+- Support for Python 3.6 through 3.10. (#90)
+
+### Fixed
+
+- `StandalonePipeline` no longer has a dependency on `redis`. SA and HA
+pipeline class references must now use the fully-qualified class name. (#89)
 
 ## [1.1.0] - 2022-05-01
 
@@ -62,7 +72,8 @@ now be installed separately through `watergrid[...]` metapackages. (#54)
 - Staggered node startup no longer causes mid-interval pipeline runs on other nodes in HA mode.
 
 
-[Unreleased]: https://github.com/ARMmaster17/watergrid-python/compare/1.1.0...HEAD
+[Unreleased]: https://github.com/ARMmaster17/watergrid-python/compare/1.1.1...HEAD
+[1.1.1]: https://github.com/ARMmaster17/watergrid-python/compare/1.1.0...1.1.1
 [1.1.0]: https://github.com/ARMmaster17/watergrid-python/compare/1.0.1...1.1.0
 [1.0.1]: https://github.com/ARMmaster17/watergrid-python/compare/1.0.0...1.0.1
 [1.0.0]: https://github.com/ARMmaster17/watergrid-python/releases/tag/1.0.0
