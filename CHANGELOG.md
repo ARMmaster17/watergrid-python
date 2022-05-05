@@ -22,7 +22,8 @@
 
 ### Fixed
 
-- `StandalonePipeline` no longer has a dependency on `redis`. SA and HA pipeline class references must now use the fully-qualified class name. (#89)
+- `StandalonePipeline` no longer has a dependency on `redis`. SA and HA
+pipeline class references must now use the fully-qualified class name. (#89)
 
 ## [1.1.0] - 2022-05-01
 
