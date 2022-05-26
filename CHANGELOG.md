@@ -4,6 +4,8 @@
 
 ### Added
 
+- LocalPipelineLock for single-thread non-networked pipeline applications. (#80)
+
 ### Changed
 
 ### Deprecated
