@@ -4,7 +4,13 @@
 
 ### Added
 
+- LocalPipelineLock for single-thread non-networked pipeline applications. (#80)
+- Local lock interface is now exposed through the DataContext for use of arbitrary locks in the pipeline. (#80)
+
 ### Changed
+
+- Bumped `redis` dependency to 4.3.1. (#94)
+- Pipeline class now uses middleware architecture for customizable pre/post run actions. (#80)
 
 ### Deprecated
 

@@ -6,8 +6,22 @@ from abc import ABC
 import pycron
 
 from watergrid.context import DataContext, OutputMode, ContextMetadata
+from watergrid.locks.LocalPipelineLock import LocalPipelineLock
+from watergrid.locks.PipelineLock import PipelineLock
 from watergrid.metrics.MetricsStore import MetricsStore
-from watergrid.pipelines.pipeline_verifier import PipelineVerifier
+from watergrid.middleware.context.ContextMetricsMiddleware import (
+    ContextMetricsMiddleware,
+)
+from watergrid.middleware.context.LockInjectorMiddleware import (
+    LockInjectorMiddleware,
+)
+from watergrid.middleware.pipeline.LastRunMiddleware import LastRunMiddleware
+from watergrid.middleware.pipeline.PipelineMetricsMiddleware import (
+    PipelineMetricsMiddleware,
+)
+from watergrid.middleware.pipeline.StepOrderingMiddleware import (
+    StepOrderingMiddleware,
+)
 from watergrid.steps import Sequence
 from watergrid.steps import Step
 
@@ -20,11 +34,24 @@ class Pipeline(ABC):
     :type pipeline_name: str
     """
 
-    def __init__(self, pipeline_name: str):
+    def __init__(self, pipeline_name: str, lock: PipelineLock = LocalPipelineLock()):
         self._pipeline_name = pipeline_name
         self._steps = []
         self._metrics_store = MetricsStore()
-        self._last_run = None
+        self._context_middleware = []
+        self._step_middleware = []
+        self._pipeline_middleware = []
+        self._pipeline_middleware.append(StepOrderingMiddleware())
+        self._lastrun_tracker = LastRunMiddleware()
+        self._pipeline_middleware.append(self._lastrun_tracker)
+        self._pipeline_middleware.append(PipelineMetricsMiddleware(self._metrics_store))
+        self._context_middleware.append(ContextMetricsMiddleware(self._metrics_store))
+        self._context_middleware.append(LockInjectorMiddleware(self))
+        self.lock = lock
+
+    @property
+    def _last_run(self):
+        return self._lastrun_tracker.last_run
 
     def add_step(self, step: Step):
         """
@@ -49,20 +76,67 @@ class Pipeline(ABC):
         Blocking operation that runs all steps in the pipeline once.
         :return: None
         """
-        self.verify_pipeline()
-        self._metrics_store.start_pipeline_monitoring(self._pipeline_name)
+        self.__pipeline_middleware_wrapper()
+
+    def __pipeline_middleware_wrapper(self):
+        self.__pipeline_middleware_pre()
+        contexts = [self.__generate_first_context()]
         try:
-            self.__run_pipeline_steps()
-            self._last_run = time.time()
+            for step in self._steps:
+                contexts = self.__step_middleware_wrapper(step, contexts)
+                if len(contexts) == 0:
+                    break
         except Exception as e:
             self._metrics_store.report_exception(e)
             self._metrics_store.stop_step_monitoring()
         finally:
-            self._metrics_store.stop_pipeline_monitoring()
+            self.__pipeline_middleware_post()
+
+    def __pipeline_middleware_pre(self):
+        for middleware in self._pipeline_middleware:
+            middleware.pre_pipeline(self)
+
+    def __pipeline_middleware_post(self):
+        for middleware in reversed(self._pipeline_middleware):
+            middleware.post_pipeline(self)
+
+    def __step_middleware_wrapper(self, step: Step, contexts: list) -> list:
+        self.__step_middleware_pre(step, contexts)
+        next_contexts = []
+        for context in contexts:
+            self.__context_middleware_wrapper(step, context)
+            self.__process_step_output(context, step.get_step_provides(), next_contexts)
+        self.__step_middleware_post(step, contexts)
+        return next_contexts
+
+    def __step_middleware_pre(self, step: Step, contexts: list):
+        for middleware in self._step_middleware:
+            middleware.pre_step(self, step, contexts)
+
+    def __step_middleware_post(self, step: Step, contexts: list):
+        for middleware in reversed(self._step_middleware):
+            middleware.post_step(self, step, contexts)
+
+    def __context_middleware_wrapper(
+        self, step: Step, context: DataContext
+    ) -> DataContext:
+        self.__context_middleware_pre(step, context)
+        step.run_step(context)
+        self.__context_middleware_post(step, context)
+        return context
+
+    def __context_middleware_pre(self, step: Step, context: DataContext):
+        for middleware in self._context_middleware:
+            middleware.pre_context(step, context)
+
+    def __context_middleware_post(self, step: Step, context: DataContext):
+        for middleware in reversed(self._context_middleware):
+            middleware.post_context(step, context)
 
     def run_loop(self):
         """
-        Runs the pipeline in a loop. Subsequent executions will run immediately after the previous execution.
+        Runs the pipeline in a loop. Subsequent executions will run immediately
+        after the previous execution.
         """
         while True:
             self.run()
@@ -97,14 +171,6 @@ class Pipeline(ABC):
         """
         return self._pipeline_name
 
-    def verify_pipeline(self):
-        """
-        Verifies that the pipeline is valid and that all step dependencies are met.
-        :return: None
-        """
-        PipelineVerifier.verify_pipeline_dependencies_fulfilled(self._steps)
-        PipelineVerifier.verify_pipeline_step_ordering(self._steps)
-
     def add_metrics_exporter(self, exporter):
         """
         Adds a metrics exporter to the pipeline metric store.
@@ -125,17 +191,6 @@ class Pipeline(ABC):
             result += step.get_step_name() + type(step).__name__
         return base64.urlsafe_b64encode(result.encode("utf-8"))
 
-    def __run_pipeline_steps(self):
-        """
-        Performs setup and runs all steps in the pipeline.
-        :return:
-        """
-        contexts = [self.__generate_first_context()]
-        for step in self._steps:
-            contexts = self.__run_step_for_each_context(step, contexts)
-            if len(contexts) == 0:
-                break
-
     def __generate_first_context(self) -> DataContext:
         """
         Generates the first context for the pipeline.
@@ -145,19 +200,6 @@ class Pipeline(ABC):
         context_meta = ContextMetadata(self._last_run)
         context.set_run_metadata(context_meta)
         return context
-
-    def __run_step_for_each_context(self, step: Step, context_list: list) -> list:
-        """
-        Runs the given step once for each context in the context list and performs post-processing.
-        :param step: Step to run.
-        :param context_list: List of contexts to provide to the step runtime.
-        :return: List of contexts to provide to the next step.
-        """
-        next_contexts = []
-        for context in context_list:
-            self.__run_step_with_performance_monitoring(step, context)
-            self.__process_step_output(context, step.get_step_provides(), next_contexts)
-        return next_contexts
 
     def __process_step_output(
         self, context: DataContext, step_provides: list, next_contexts: list
@@ -175,17 +217,6 @@ class Pipeline(ABC):
             self.__filter_context(step_provides, context, next_contexts)
         else:
             self.__forward_context(context, next_contexts)
-
-    def __run_step_with_performance_monitoring(self, step: Step, context: DataContext):
-        """
-        Runs a single step in the pipeline and forwards performance data to any installed monitoring plugins.
-        :param step: Step to run.
-        :param context: Context to provide to the step runtime.
-        :return: None
-        """
-        self._metrics_store.start_step_monitoring(step.get_step_name())
-        step.run_step(context)
-        self._metrics_store.stop_step_monitoring()
 
     def __split_context(
         self, step_provides: list, context: DataContext, next_contexts: list

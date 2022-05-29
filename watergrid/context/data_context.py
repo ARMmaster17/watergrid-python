@@ -1,5 +1,6 @@
 from watergrid.context import OutputMode
 from watergrid.context.context_metadata import ContextMetadata
+from watergrid.locks.PipelineLock import PipelineLock
 
 
 class DataContext:
@@ -12,6 +13,7 @@ class DataContext:
         self.data = {}
         self.output_mode = OutputMode.DIRECT
         self.metadata = ContextMetadata()
+        self._lock = None
 
     def set(self, key: str, value: object) -> None:
         """
@@ -90,6 +92,14 @@ class DataContext:
         :return: None
         """
         self.metadata = metadata
+
+    @property
+    def lock(self):
+        return self._lock
+
+    @lock.setter
+    def lock(self, lock: PipelineLock):
+        self._lock = lock
 
     @staticmethod
     def deep_copy_context(context):

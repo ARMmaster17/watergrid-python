@@ -20,13 +20,12 @@ class HAPipeline(Pipeline):
         self.__lock_timings = []
 
     def run(self):
-        self.verify_pipeline()
         if self.__pipeline_lock.lock():
             super().run()
             self.__pipeline_lock.unlock()
         else:
             logging.debug(
-                "Pipeline {} is already running on another instance".format(
+                "pipeline {} is already running on another instance".format(
                     self.get_pipeline_name()
                 )
             )
@@ -37,7 +36,6 @@ class HAPipeline(Pipeline):
         :param job_interval_s: Number of seconds to wait between pipeline runs.
         :return: None
         """
-        self.verify_pipeline()
         while True:
             self._run_interval_loop(job_interval_s)
             time.sleep(self._calculate_delay(job_interval_s) / 1000)
@@ -78,7 +76,7 @@ class HAPipeline(Pipeline):
             self._set_last_run(time.time() - job_interval_s)
         if time.time() - last_run > job_interval_s * 3:
             logging.warning(
-                "Pipeline {} has fallen more than three cycles behind. Consider increasing the job interval or "
+                "pipeline {} has fallen more than three cycles behind. Consider increasing the job interval or "
                 "provisioning more machines.".format(self.get_pipeline_name())
             )
             self._set_last_run(time.time() - job_interval_s)
@@ -90,7 +88,7 @@ class HAPipeline(Pipeline):
         :return: None
         """
         logging.debug(
-            "Pipeline {} is already running on another instance".format(
+            "pipeline {} is already running on another instance".format(
                 self.get_pipeline_name()
             )
         )
@@ -117,7 +115,7 @@ class HAPipeline(Pipeline):
     def _get_pipeline_lock_name(self) -> str:
         """
         Builds the name of the lock assigned to this pipeline.
-        :return: Pipeline lock name.
+        :return: pipeline lock name.
         """
         return "{}_last_run".format(self.get_pipeline_name())
 
