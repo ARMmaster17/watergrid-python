@@ -3,20 +3,20 @@ from watergrid.locks.PipelineLock import PipelineLock
 
 class LocalPipelineLock(PipelineLock):
     def acquire(self) -> bool:
-        if not self.__lock_obj:
-            self.__lock_obj = True
+        if not self._lock_obj:
+            self._lock_obj = True
             return True
         else:
             return False
 
     def has_lock(self) -> bool:
-        return self.__lock_obj
+        return self._lock_obj
 
     def extend_lease(self):
         pass
 
     def release(self):
-        self.__lock_obj = False
+        self._lock_obj = False
 
     def read_key(self, key: str):
         return self.__key_value[key]
@@ -26,5 +26,5 @@ class LocalPipelineLock(PipelineLock):
 
     def __init__(self, lock_timeout: int = 60):
         super().__init__(lock_timeout)
-        self.__lock_obj = False
+        self._lock_obj = False
         self.__key_value = {}

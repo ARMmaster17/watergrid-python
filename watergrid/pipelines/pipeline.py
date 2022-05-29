@@ -6,16 +6,19 @@ from abc import ABC
 import pycron
 
 from watergrid.context import DataContext, OutputMode, ContextMetadata
+from watergrid.locks.LocalPipelineLock import LocalPipelineLock
+from watergrid.locks.PipelineLock import PipelineLock
 from watergrid.metrics.MetricsStore import MetricsStore
 from watergrid.middleware.context.ContextMetricsMiddleware import \
     ContextMetricsMiddleware
+from watergrid.middleware.context.LockInjectorMiddleware import \
+    LockInjectorMiddleware
 from watergrid.middleware.pipeline.LastRunMiddleware import LastRunMiddleware
 from watergrid.middleware.StepMiddleware import StepMiddleware
 from watergrid.middleware.pipeline.PipelineMetricsMiddleware import \
     PipelineMetricsMiddleware
 from watergrid.middleware.pipeline.StepOrderingMiddleware import \
     StepOrderingMiddleware
-from watergrid.pipelines.pipeline_verifier import PipelineVerifier
 from watergrid.steps import Sequence
 from watergrid.steps import Step
 
@@ -28,7 +31,7 @@ class Pipeline(ABC):
     :type pipeline_name: str
     """
 
-    def __init__(self, pipeline_name: str):
+    def __init__(self, pipeline_name: str, lock: PipelineLock = LocalPipelineLock()):
         self._pipeline_name = pipeline_name
         self._steps = []
         self._metrics_store = MetricsStore()
@@ -40,6 +43,8 @@ class Pipeline(ABC):
         self._pipeline_middleware.append(self._lastrun_tracker)
         self._pipeline_middleware.append(PipelineMetricsMiddleware(self._metrics_store))
         self._context_middleware.append(ContextMetricsMiddleware(self._metrics_store))
+        self._context_middleware.append(LockInjectorMiddleware(self))
+        self.lock = lock
 
     @property
     def _last_run(self):
@@ -180,13 +185,6 @@ class Pipeline(ABC):
         for step in self._steps:
             result += step.get_step_name() + type(step).__name__
         return base64.urlsafe_b64encode(result.encode("utf-8"))
-
-    def _add_step_middleware(self, middleware: StepMiddleware):
-        """
-        Adds a middlware layer that will run before and after each step
-        in the pipeline.
-        """
-        self._middleware.append(middleware)
 
     def __generate_first_context(self) -> DataContext:
         """
