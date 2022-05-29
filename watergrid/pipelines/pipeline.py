@@ -118,7 +118,7 @@ class Pipeline(ABC):
             middleware.post_step(self, step, contexts)
 
     def __context_middleware_wrapper(
-            self, step: Step, context: DataContext
+        self, step: Step, context: DataContext
     ) -> DataContext:
         self.__context_middleware_pre(step, context)
         step.run_step(context)

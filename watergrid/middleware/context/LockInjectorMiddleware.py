@@ -10,6 +10,7 @@ class LockInjectorMiddleware(ContextMiddleware):
     is not deep copied as when using local locks this will break the
     functionality of the lock.
     """
+
     def pre_context(self, step: Step, context: DataContext):
         context.lock = self._pipeline.lock
 

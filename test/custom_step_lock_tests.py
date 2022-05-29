@@ -36,5 +36,5 @@ class CustomStepLockTestCase(unittest.TestCase):
         self.assertTrue(mock_step.get_flag())
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()
