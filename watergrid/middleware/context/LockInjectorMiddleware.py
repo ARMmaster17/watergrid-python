@@ -7,8 +7,8 @@ from watergrid.steps import Step
 class LockInjectorMiddleware(ContextMiddleware):
     """
     Modifies a context before an after a step to ensure that the lock context
-    is not deep copied as when using local locks this will break the functionality
-    of the lock.
+    is not deep copied as when using local locks this will break the
+    functionality of the lock.
     """
     def pre_context(self, step: Step, context: DataContext):
         context.lock = self._pipeline.lock

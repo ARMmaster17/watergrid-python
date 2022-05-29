@@ -9,16 +9,19 @@ from watergrid.context import DataContext, OutputMode, ContextMetadata
 from watergrid.locks.LocalPipelineLock import LocalPipelineLock
 from watergrid.locks.PipelineLock import PipelineLock
 from watergrid.metrics.MetricsStore import MetricsStore
-from watergrid.middleware.context.ContextMetricsMiddleware import \
-    ContextMetricsMiddleware
-from watergrid.middleware.context.LockInjectorMiddleware import \
-    LockInjectorMiddleware
+from watergrid.middleware.context.ContextMetricsMiddleware import (
+    ContextMetricsMiddleware,
+)
+from watergrid.middleware.context.LockInjectorMiddleware import (
+    LockInjectorMiddleware,
+)
 from watergrid.middleware.pipeline.LastRunMiddleware import LastRunMiddleware
-from watergrid.middleware.StepMiddleware import StepMiddleware
-from watergrid.middleware.pipeline.PipelineMetricsMiddleware import \
-    PipelineMetricsMiddleware
-from watergrid.middleware.pipeline.StepOrderingMiddleware import \
-    StepOrderingMiddleware
+from watergrid.middleware.pipeline.PipelineMetricsMiddleware import (
+    PipelineMetricsMiddleware,
+)
+from watergrid.middleware.pipeline.StepOrderingMiddleware import (
+    StepOrderingMiddleware,
+)
 from watergrid.steps import Sequence
 from watergrid.steps import Step
 
@@ -114,7 +117,9 @@ class Pipeline(ABC):
         for middleware in reversed(self._step_middleware):
             middleware.post_step(self, step, contexts)
 
-    def __context_middleware_wrapper(self, step: Step, context: DataContext) -> DataContext:
+    def __context_middleware_wrapper(
+            self, step: Step, context: DataContext
+    ) -> DataContext:
         self.__context_middleware_pre(step, context)
         step.run_step(context)
         self.__context_middleware_post(step, context)
