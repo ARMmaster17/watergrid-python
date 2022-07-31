@@ -1,10 +1,10 @@
 
 <!DOCTYPE html>
 
-<html>
+<html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
 
     <title>Concepts &#8212; Watergrid 1.1.1 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
@@ -13,6 +13,7 @@
     <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
     <script src="_static/jquery.js"></script>
     <script src="_static/underscore.js"></script>
+    <script src="_static/_sphinx_javascript_frameworks_compat.js"></script>
     <script src="_static/doctools.js"></script>
     
     <link rel="canonical" href="/watergrid-python/concepts.html" />
@@ -44,29 +45,29 @@
           <div class="body" role="main">
             
   <section id="concepts">
-<h1>Concepts<a class="headerlink" href="#concepts" title="Permalink to this headline">¶</a></h1>
+<h1>Concepts<a class="headerlink" href="#concepts" title="Permalink to this heading">¶</a></h1>
 <section id="pipeline">
-<h2>Pipeline<a class="headerlink" href="#pipeline" title="Permalink to this headline">¶</a></h2>
+<h2>Pipeline<a class="headerlink" href="#pipeline" title="Permalink to this heading">¶</a></h2>
 <p>A watergrid application is composed of a single pipeline, There are two types of pipelines:
 - <cite>StandalonePipeline</cite> - For low impact use cases where simplicity is preferred.
 - <cite>HAPipeline</cite> - For use cases where high availability is required along with only-once processing.</p>
 </section>
 <section id="steps">
-<h2>Steps<a class="headerlink" href="#steps" title="Permalink to this headline">¶</a></h2>
+<h2>Steps<a class="headerlink" href="#steps" title="Permalink to this heading">¶</a></h2>
 <p>A pipeline is composed of one or more steps. Once you create a pipeline, you can add steps using the <cite>add_step()</cite> method.
 Watergrid expects that you create a new class for each step that you want to perform in the pipeline. All steps must
 inherit from the abstract <cite>Step</cite> class. Your steps should provide an override for the <cite>run(context)</cite> method. Inside this
 method you can perform any actions you want.</p>
 </section>
 <section id="context">
-<h2>Context<a class="headerlink" href="#context" title="Permalink to this headline">¶</a></h2>
+<h2>Context<a class="headerlink" href="#context" title="Permalink to this heading">¶</a></h2>
 <p>The context is a key-value store that is passed to each step in the pipeline. You can use the context to store
 data created in your step, and to access data created in previous steps. Changing the <cite>OutputMode</cite> of the context
 in a set allows for splitting or filtering the context after the step completes. This can be used to have subsequent
 steps run multiple times based on the output of the current step.</p>
 </section>
 <section id="locks">
-<h2>Locks<a class="headerlink" href="#locks" title="Permalink to this headline">¶</a></h2>
+<h2>Locks<a class="headerlink" href="#locks" title="Permalink to this heading">¶</a></h2>
 <p>When using the <cite>HAPipeline</cite> class, you must provide a lock to prevent multiple instances from running the same pipeline
 at the same time. The <cite>RedisLock</cite> class is provided by watergrid, but you are free to implement your own lock
 using the <cite>Lock</cite> abstract class.</p>
@@ -119,7 +120,7 @@ using the <cite>Lock</cite> abstract class.</p>
     </form>
     </div>
 </div>
-<script>$('#searchbox').show(0);</script>
+<script>document.getElementById('searchbox').style.display = "block"</script>
         </div>
       </div>
       <div class="clearer"></div>
@@ -142,7 +143,7 @@ using the <cite>Lock</cite> abstract class.</p>
     </div>
     <div class="footer" role="contentinfo">
         &#169; Copyright 2022, Joshua Zenn (ARMmaster17).
-      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.5.0.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 5.1.1.
     </div>
   </body>
 </html>
