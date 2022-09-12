@@ -22,7 +22,7 @@ jobs:
           cd _build/html
           touch .nojekyll
       - name: Push docs to GitHub Pages
-        uses: JamesIves/github-pages-deploy-action@v4.3.3
+        uses: JamesIves/github-pages-deploy-action@v4.4.0
         with:
           branch: gh-pages
           folder: ./docs/_build/html
