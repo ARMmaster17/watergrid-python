@@ -28,5 +28,5 @@ setuptools.setup(
         "lock-redis": ["redis==4.5.1"],
         "metrics-elasticsearch": ["elastic-apm==6.15.0"],
     },
-    setup_requires=["black==22.10.0"],
+    setup_requires=["black==23.1.0"],
 )
