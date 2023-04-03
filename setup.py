@@ -25,8 +25,8 @@ setuptools.setup(
         "pycron==3.0.0",
     ],
     extras_require={
-        "lock-redis": ["redis==4.5.1"],
-        "metrics-elasticsearch": ["elastic-apm==6.15.0"],
+        "lock-redis": ["redis==4.5.4"],
+        "metrics-elasticsearch": ["elastic-apm==6.15.1"],
     },
-    setup_requires=["black==22.10.0"],
+    setup_requires=["black==23.3.0"],
 )
