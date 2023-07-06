@@ -93,7 +93,7 @@ jobs:
           coverage run --source=watergrid -m unittest discover -s test -p '*.py'
           coverage xml -o coverage.xml
       - name: Submit coverage report
-        uses: paambaati/codeclimate-action@v4.0.0
+        uses: paambaati/codeclimate-action@v5.0.0
         env:
           CC_TEST_REPORTER_ID: 29a27fc4eb61dd439f58c906409779d64a5a760a37b8b118a643959621727e3d
         with:
